@@ -1,0 +1,31 @@
+{
+  "name": "http-api-assignment-ii",
+  "version": "1.0.0",
+  "engines": {
+        "node": "12.18.3",
+        "npm": "6.14.6"
+    },
+  "description": "HTTP API Assignment II",
+  "main": "server.js",
+  "dependencies": {
+    "eslint": "^7.9.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-import": "^2.22.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+        "start": "node ./src/server.js",
+        "pretest": "eslint ./src --fix",
+        "test": "echo \"Tests complete\""
+    },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/taw7904/http-api-assignment-ii.git"
+  },
+  "author": "Taylor Ward",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/taw7904/http-api-assignment-ii/issues"
+  },
+  "homepage": "https://github.com/taw7904/http-api-assignment-ii#readme"
+}
