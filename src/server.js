@@ -11,10 +11,12 @@ const urlStruct = {
     '/': htmlHandler.getIndex,
     '/style.css': htmlHandler.getStyle,
     '/getUsers': jsonHandler.getUsers,
+    '/getFoods': jsonHandler.getFoods,
     notFound: jsonHandler.notFound,
   },
   HEAD: {
     '/getUsers': jsonHandler.getUsersMeta,
+    '/getFoods': jsonHandler.getFoodsMeta,
     notFound: jsonHandler.notFoundMeta,
   },
 };
@@ -22,7 +24,7 @@ const urlStruct = {
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
   // if post is to /addUser (our only POST url)
-  if (parsedUrl.pathname === '/addUser') {
+  if (parsedUrl.pathname === '/addFood') {
     // uploads come in as a byte stream that we need
     // to reassemble once it's all arrived
     const body = [];
@@ -49,7 +51,7 @@ const handlePost = (request, response, parsedUrl) => {
       // Parse the string into an object by field name
       const bodyParams = query.parse(bodyString);
       // pass to our addUser function
-      jsonHandler.addUser(request, response, bodyParams);
+      jsonHandler.addFood(request, response, bodyParams);
     });
   }
 };

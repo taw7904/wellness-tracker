@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Our simple HTTP server</title>
+  <title>Wellness Tracker</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
@@ -14,16 +14,23 @@
       //if message in response, add to screen
       if(obj.message) {
         const p = document.createElement('p');
-        p.textContent = `Message: ${obj.message}`;
+        p.textContent = `Log: ${obj.message}`;
         content.appendChild(p);
       }
       
       //if users in response, add to screen
-      if(obj.users) {
+      /*if(obj.users) {
         const userList = document.createElement('p');
         const users = JSON.stringify(obj.users);
         userList.textContent = users;
         content.appendChild(userList);
+      }*/
+        
+      if(obj.foods) {
+        const foodList = document.createElement('p');
+        const foods = JSON.stringify(obj.foods);
+        foodList.textContent = foods;
+        content.appendChild(foodList);
       }
     };
 
@@ -59,49 +66,37 @@
     };
 
     //function to send our post request
-    const sendPost = (e, nameForm) => {
+    const sendPost = (e, foodForm) => {
       //grab the forms action (url to go to)
       //and method (HTTP method - POST in this case)
-      const nameAction = nameForm.getAttribute('action');
-      const nameMethod = nameForm.getAttribute('method');
+      const foodAction = foodForm.getAttribute('action');
+      const foodMethod = foodForm.getAttribute('method');
       
       //grab the form's name and age fields so we can check user input
-      const nameField = nameForm.querySelector('#nameField');
-      const ageField = nameForm.querySelector('#ageField');
+      const foodNameField = foodForm.querySelector('#foodNameField');
+      const caloriesField = foodForm.querySelector('#caloriesField');
+      const quantityField = foodForm.querySelector('#quantityField');
       
       //create a new Ajax request (remember this is asynchronous)
       const xhr = new XMLHttpRequest();
-      //set the method (POST) and url (action field from form)
-      xhr.open(nameMethod, nameAction);
-      
-      //set our request type to x-www-form-urlencoded
-      //which is one of the common types of form data. 
-      //This type has the same format as query strings key=value&key2=value2
-        // /getUser?name=Austin
+      xhr.open(foodMethod, foodAction);
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      //set our requested response type in hopes of a JSON response
       xhr.setRequestHeader ('Accept', 'application/json');
-      
-      //set our function to handle the response
       xhr.onload = () => handleResponse(xhr, true);
       
       //build our x-www-form-urlencoded format.
       //query string format: key=value&key2=value2
-      //so ours might look like  name=test&age=22
-      const formData = `name=${nameField.value}&age=${ageField.value}`;
+      const formData = `foodName=${foodNameField.value}&calories=${caloriesField.value}&quantity=${quantityField.value}`;
       
       //send our request with the data
       xhr.send(formData);
-    
-      //prevent the browser's default action (to send the form on its own)
       e.preventDefault();
-      //return false to prevent the browser from trying to change page
       return false;
     };
 
-    const requestUpdate = (e, userForm) => {
-      const url = userForm.querySelector('#urlField').value;
-      const method = userForm.querySelector('#methodSelect').value;
+    const requestUpdate = (e, foodForm) => {
+      const url = foodForm.querySelector('#urlField').value;
+      const method = foodForm.querySelector('#methodSelect').value;
       const xhr = new XMLHttpRequest();
       xhr.open(method, url); 
       xhr.setRequestHeader('Accept', 'application/json');
@@ -111,7 +106,7 @@
         xhr.onload = () => handleResponse(xhr, true);
       } else {
         // HEAD request for no parse, no body responses
-        //set onload to check meta data and NOT message
+        // set onload to check meta data and NOT message
         xhr.onload = () => handleResponse(xhr, false);
       }
       xhr.send();
@@ -121,25 +116,30 @@
 
     const init = () => {
       //grab form
-      const nameForm = document.querySelector('#nameForm');
+      const foodForm = document.querySelector('#foodForm');
       //create handler
-      const addUser = (e) => sendPost(e, nameForm);
+      const addFood = (e) => sendPost(e, foodForm);
       //attach submit event (for clicking submit or hitting enter)
-      nameForm.addEventListener('submit', addUser);
+      foodForm.addEventListener('submit', addFood);
       //grab form
-      const userForm = document.querySelector('#userForm');
+      const getForm = document.querySelector('#getForm');
       //create handler
-      const getUsers = (e) => requestUpdate(e, userForm);
+      const getFoods = (e) => requestUpdate(e, getForm);
       //attach submit event (for clicking submit or hitting enter)
-      userForm.addEventListener('submit', getUsers);
+      getForm.addEventListener('submit', getFoods);
     };
 
     window.onload = init;
   </script>
 </head>
 <body>
+    <section id="intro">
+    <h1>Wellness Tracker</h1>
+        <p>Welcome! Use this wellness tracker to keep track of your goals for the day. Enter your food and water intake, physical activity, and rest. You can edit your goals at any time.</p>
+    </section>
+    
   <section id="top">
-    <h3>POST Status Code Tests</h3>
+    <!--<h3>Wellness Tracker</h3>
     <form id="nameForm" action="/addUser" method="post">
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
@@ -147,6 +147,83 @@
       <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
       <input type="submit" value="Add User" />
     </form>
+      -->
+    <div id="div1" class="boxes">  
+        <p>Goal: XX</p>
+    <form id="foodForm" action="/addFood" method="post">
+      <p><label for="foodName">Food Name: </label>
+      <input id="foodNameField" type="text" name="foodName" />
+      </p>
+        <p>
+      <label for="calories">Calories: </label>
+      <input id="caloriesField" type="number" name="calories" min="0" max="10000" step="5"/>
+        </p>
+     <p>
+      <label for="quantity">Quantity: </label>
+      <input id="quantityField" type="number" name="quantity" min="1" max="30" step=".5"/>
+    </p>
+    <p>
+      <input type="submit" value="Add Food"/>
+    </p>
+    </form> 
+    <section id="content"></section>
+    </div>
+      
+    <div id="div2" class="boxes">
+        <p>Goal: XX</p>
+    <form id="waterForm" action="/addWater" method="post">
+      <p><label for="glassesNum">Number of Glasses: </label>
+      <input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1"/></p>
+      <p><input type="submit" value="Add Glass" /></p>
+    </form> 
+    <span class="log">Log: </span>
+    </div>
+      
+    </section>
+    
+    <section id="bottom">
+    <div id="div3" class="boxes">
+        <p>Goal: XX</p>
+    <form id="exerciseForm" action="/addExercise" method="post">
+      <p><label for="exerciseType">Exercise Type: </label>
+      <input id="exerciseTypeField" type="text" name="exerciseType" /></p>
+      <p><label for="minutes">Duration (Minutes): </label>
+      <input id="minutesField" type="number" name="minutes" min="0" max="600" step="5"/></p>
+      <p><input type="submit" value="Add Exercise" /></p>
+    </form>
+    <span class="log">Log: </span>
+    </div>
+      
+    <div id="div4" class="boxes">
+        <p>Goal: XX</p>
+    <form id="restForm" action="/addRest" method="post">
+      <p><label for="sleep">Sleep (Hours): </label>
+      <input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5"/></p>
+      <p><label for="relaxation">Relaxation Time (Minutes): </label>
+      <input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="5"/></p>
+      <p><label for="mood">Mood: </label>
+      <input id="moodField" type="text" name="mood" /></p>
+      <p><input type="submit" value="Add Rest" /></p>
+    </form> 
+    <span class="log">Log: </span>
+      </div>
+        
+    </section>
+      
+      <br>
+    
+    <form id="getForm" action="/getFoods" method="get">
+      <select id='urlField'>
+        <option value='/getFoods'>/getFoods</option>
+        <option value='/notReal'>/notReal</option>
+      </select>
+      <select id="methodSelect">
+        <option value="get">GET</option>
+        <option value="head">HEAD</option>
+      </select>
+      <input type="submit" value="Get Foods" />
+    </form>
+    <!--
     <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
         <option value='/getUsers'>/getUsers</option>
@@ -158,8 +235,8 @@
       </select>
       <input type="submit" value="Get User" />
     </form>
-  </section>
+    
   <section id="content">
-  </section>
+  </section> -->
 </body>
 </html>

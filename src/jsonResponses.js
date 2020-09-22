@@ -1,4 +1,8 @@
 const users = {};
+const foods = {};
+// const glasses = {};
+// const exercises = {};
+// const rest = {};
 
 // function to respond with a json object
 // takes request, response, status code and object to send
@@ -26,6 +30,55 @@ const getUsers = (request, response) => {
 };
 
 const getUsersMeta = (request, response) => respondJSONMeta(request, response, 200);
+
+// return user object as JSON
+const getFoods = (request, response) => {
+  const responseJSON = {
+    foods,
+  };
+  return respondJSON(request, response, 200, responseJSON);
+};
+
+const getFoodsMeta = (request, response) => respondJSONMeta(request, response, 200);
+
+// function to add a user from a POST body
+// body contains information from the user
+const addFood = (request, response, body) => {
+  // default json message -> assume the user sent an improper request
+  const responseJSON = {
+    message: 'Please enter the name, calories, and quantity.',
+  };
+
+  // check to make sure we have both fields
+  // if either are missing, send back an error message as a 400 badRequest
+  if (!body.foodName || !body.calories || !body.quantity) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  // default status code to 201 created - we assume user doesn't exist
+  let responseCode = 201;
+
+  // if user already exists, switch to a 204 updated status
+  if (foods[body.foodName]) {
+    responseCode = 204;
+  } else {
+    // otherwise create an empty object with that name
+    foods[body.foodName] = {};
+    foods[body.foodName].foodName = body.foodName;
+  }
+
+  foods[body.foodName].calories = body.calories;
+  foods[body.foodName].quantity = body.quantity;
+
+  // if response is created, then set our created message
+  // and sent response with a message
+  if (responseCode === 201) {
+    responseJSON.message = 'Created Successfully';
+    return respondJSON(request, response, responseCode, responseJSON);
+  }
+  return respondJSONMeta(request, response, responseCode);
+};
 
 // function to add a user from a POST body
 // body contains information from the user
@@ -84,6 +137,9 @@ module.exports = {
   getUsers,
   getUsersMeta,
   addUser,
+  getFoods,
+  getFoodsMeta,
+  addFood,
   notFound,
   notFoundMeta,
 };
