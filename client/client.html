@@ -6,6 +6,8 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    const content = document.querySelector('#content');
+
     const parseJSON = (xhr, content) => {
       //parse response (obj will be empty in a 204 updated)
       const obj = JSON.parse(xhr.response);
@@ -14,7 +16,7 @@
       //if message in response, add to screen
       if(obj.message) {
         const p = document.createElement('p');
-        p.textContent = `Log: ${obj.message}`;
+        p.textContent = `${obj.message}`;
         content.appendChild(p);
       }
       
@@ -28,26 +30,40 @@
         
       if(obj.foods) {
         const foodList = document.createElement('p');
-        const foods = JSON.stringify(obj.foods);
-        foodList.textContent = foods;
+          const foodObj = obj.foods;
+          //want to parse it again here so that we can use it
+        //const foods = JSON.stringify(obj.foods);
+        //foodList.textContent = foods;
+          //console.log(foods)
+        /*for(let foodItem in foodObj) {
+            console.log(foodItem[0]);
+            foodList.innerHTML = foodItem + '<br>';
+        }*/
+          //console.log(Object.keys(foodObj));
+          //console.log(Object.keys(foodObj[0]));
+          //console.log(foodObj[0]);
+        for (const [key, value] of Object.entries(foodObj)) {
+            console.log(`${key}: ${value}`);
+            }
         content.appendChild(foodList);
       }
     };
 
     //function to handle our response
     const handleResponse = (xhr, parseResponse) => {
-      const content = document.querySelector('#content');
+      
       
       //check the status code
       switch(xhr.status) {
         case 200: //success
-          content.innerHTML = `<b>Success</b>`;
+          //just show the list
+          //content.innerHTML = `<b>Added to log!</b>`;
           break;
         case 201: //created
-          content.innerHTML = '<b>Created</b>';
+          content.innerHTML = '<b>Added to log!</b>';
           break;
         case 204: //updated (no response back from server)
-          content.innerHTML = '<b>Updated (No Content)</b>';
+          content.innerHTML = '<b>Log updated!</b>';
           return;
         case 400: //bad request
           content.innerHTML = `<b>Bad Request</b>`;
@@ -117,16 +133,38 @@
     const init = () => {
       //grab form
       const foodForm = document.querySelector('#foodForm');
+      const addFoodBtn = document.querySelector("#addFoodBtn");
+      const getFoodBtn = document.querySelector("#getFoodBtn");
       //create handler
       const addFood = (e) => sendPost(e, foodForm);
       //attach submit event (for clicking submit or hitting enter)
-      foodForm.addEventListener('submit', addFood);
+      //foodForm.addEventListener('submit', addFood);
+      addFoodBtn.addEventListener("click", addFood);
+      let displayList = true;
       //grab form
-      const getForm = document.querySelector('#getForm');
+      //const getForm = document.querySelector('#getForm');
       //create handler
-      const getFoods = (e) => requestUpdate(e, getForm);
+      const getFoods = (e) => {
+          if(displayList) {
+          //clear what's in the content so all they see is the list
+          content.innerHTML="";
+          requestUpdate(e, getForm);
+          foodForm.style.display="none";
+          content.style.display="block";
+          e.target.value="Back to Main";
+          displayList = false;
+          }
+          else {
+              foodForm.style.display="block";
+              content.style.display="none";
+              e.target.value="Show List";
+              displayList = true;
+          }
+      };
       //attach submit event (for clicking submit or hitting enter)
-      getForm.addEventListener('submit', getFoods);
+      //getForm.addEventListener('submit', getFoods);
+      
+      getFoodBtn.addEventListener("click", getFoods);
     };
 
     window.onload = init;
@@ -149,28 +187,29 @@
     </form>
       -->
     <div id="div1" class="boxes">  
-        <p>Goal: XX</p>
+    <p class="goal">Goal: XX</p>
     <form id="foodForm" action="/addFood" method="post">
       <p><label for="foodName">Food Name: </label>
       <input id="foodNameField" type="text" name="foodName" />
       </p>
         <p>
       <label for="calories">Calories: </label>
-      <input id="caloriesField" type="number" name="calories" min="0" max="10000" step="5"/>
+      <input id="caloriesField" type="number" name="calories" min="0" max="10000" step="1"/>
         </p>
      <p>
       <label for="quantity">Quantity: </label>
       <input id="quantityField" type="number" name="quantity" min="1" max="30" step=".5"/>
     </p>
-    <p>
-      <input type="submit" value="Add Food"/>
-    </p>
     </form> 
+     <p>
+      <input id="addFoodBtn" type="button" value="Add Food"/>
+        <input id="getFoodBtn" type="button" value="Show List" />
+    </p>
     <section id="content"></section>
     </div>
       
     <div id="div2" class="boxes">
-        <p>Goal: XX</p>
+        <p class="goal">Goal: XX</p>
     <form id="waterForm" action="/addWater" method="post">
       <p><label for="glassesNum">Number of Glasses: </label>
       <input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1"/></p>
@@ -183,24 +222,24 @@
     
     <section id="bottom">
     <div id="div3" class="boxes">
-        <p>Goal: XX</p>
+        <p class="goal">Goal: XX</p>
     <form id="exerciseForm" action="/addExercise" method="post">
       <p><label for="exerciseType">Exercise Type: </label>
       <input id="exerciseTypeField" type="text" name="exerciseType" /></p>
       <p><label for="minutes">Duration (Minutes): </label>
-      <input id="minutesField" type="number" name="minutes" min="0" max="600" step="5"/></p>
+      <input id="minutesField" type="number" name="minutes" min="0" max="600" step="1"/></p>
       <p><input type="submit" value="Add Exercise" /></p>
     </form>
     <span class="log">Log: </span>
     </div>
       
     <div id="div4" class="boxes">
-        <p>Goal: XX</p>
+        <p class="goal">Goal: XX</p>
     <form id="restForm" action="/addRest" method="post">
       <p><label for="sleep">Sleep (Hours): </label>
       <input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5"/></p>
       <p><label for="relaxation">Relaxation Time (Minutes): </label>
-      <input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="5"/></p>
+      <input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="1"/></p>
       <p><label for="mood">Mood: </label>
       <input id="moodField" type="text" name="mood" /></p>
       <p><input type="submit" value="Add Rest" /></p>
@@ -221,7 +260,7 @@
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>
-      <input type="submit" value="Get Foods" />
+      <!--<input type="submit" value="Get Foods" />-->
     </form>
     <!--
     <form id="userForm" action="/getUsers" method="get">

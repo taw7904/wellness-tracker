@@ -56,10 +56,10 @@ const addFood = (request, response, body) => {
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  // default status code to 201 created - we assume user doesn't exist
+  // default status code - assuming item is not yet created
   let responseCode = 201;
 
-  // if user already exists, switch to a 204 updated status
+  // if already exists, switch to a 204 updated status
   if (foods[body.foodName]) {
     responseCode = 204;
   } else {

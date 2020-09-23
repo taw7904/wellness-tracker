@@ -8,7 +8,7 @@ html, body {
   font-family: 'Kumbh Sans', sans-serif;
 }
 
-input[type=submit] {
+input[type=submit], input[type=button] {
     font-family: 'Kumbh Sans', sans-serif;
     font-size: 0.8em;
     padding: 0.5em;
@@ -16,6 +16,10 @@ input[type=submit] {
 
 input[type=text] {
     width: 10em;
+}
+
+.goal {
+    text-align: center;
 }
 
 #top, #bottom {
