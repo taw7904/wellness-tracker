@@ -3,7 +3,6 @@
 <head>
   <title>Wellness Tracker</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
     const content = document.querySelector('#content');
@@ -11,39 +10,21 @@
     const parseJSON = (xhr, content) => {
       //parse response (obj will be empty in a 204 updated)
       const obj = JSON.parse(xhr.response);
-      console.dir(obj);
-      
-      //if message in response, add to screen
       if(obj.message) {
         const p = document.createElement('p');
         p.textContent = `${obj.message}`;
         content.appendChild(p);
       }
-      
-      //if users in response, add to screen
-      /*if(obj.users) {
-        const userList = document.createElement('p');
-        const users = JSON.stringify(obj.users);
-        userList.textContent = users;
-        content.appendChild(userList);
-      }*/
         
       if(obj.foods) {
-        const foodList = document.createElement('p');
-          const foodObj = obj.foods;
-          //want to parse it again here so that we can use it
-        //const foods = JSON.stringify(obj.foods);
-        //foodList.textContent = foods;
-          //console.log(foods)
-        /*for(let foodItem in foodObj) {
-            console.log(foodItem[0]);
-            foodList.innerHTML = foodItem + '<br>';
-        }*/
-          //console.log(Object.keys(foodObj));
-          //console.log(Object.keys(foodObj[0]));
-          //console.log(foodObj[0]);
+        const foodList = document.createElement('ul');
+        const foodObj = obj.foods;
         for (const [key, value] of Object.entries(foodObj)) {
-            console.log(`${key}: ${value}`);
+            //console.log(`${key}: ${value}`);
+            //console.dir(value);
+            let foodListItem = document.createElement('li');
+            foodListItem.innerHTML = "<b>" + value.foodName + ":</b> " + value.quantity + " @ " + value.calories + " calories each";
+            foodList.appendChild(foodListItem);
             }
         content.appendChild(foodList);
       }
@@ -51,13 +32,10 @@
 
     //function to handle our response
     const handleResponse = (xhr, parseResponse) => {
-      
-      
-      //check the status code
       switch(xhr.status) {
         case 200: //success
           //just show the list
-          //content.innerHTML = `<b>Added to log!</b>`;
+          //content.innerHTML = `<b>Success</b>`;
           break;
         case 201: //created
           content.innerHTML = '<b>Added to log!</b>';
@@ -106,7 +84,14 @@
       
       //send our request with the data
       xhr.send(formData);
-      e.preventDefault();
+      if(e) {
+          e.preventDefault();
+      }
+      //clear the fields in form when done
+        foodForm.reset();
+        //set focus back to first input
+        foodForm.elements[0].focus();
+        content.style.display="block";
       return false;
     };
 
@@ -135,15 +120,19 @@
       const foodForm = document.querySelector('#foodForm');
       const addFoodBtn = document.querySelector("#addFoodBtn");
       const getFoodBtn = document.querySelector("#getFoodBtn");
+      //set up to see if enter key is hit on the form
+      for(let i=0; i<foodForm.elements.length; i++) {
+          let inputField = foodForm.elements[i];
+          inputField.addEventListener("keydown", function(e) {
+             if(e.keyCode === 13) {
+                 addFood();
+             } 
+          });
+      }
       //create handler
       const addFood = (e) => sendPost(e, foodForm);
-      //attach submit event (for clicking submit or hitting enter)
-      //foodForm.addEventListener('submit', addFood);
       addFoodBtn.addEventListener("click", addFood);
       let displayList = true;
-      //grab form
-      //const getForm = document.querySelector('#getForm');
-      //create handler
       const getFoods = (e) => {
           if(displayList) {
           //clear what's in the content so all they see is the list
@@ -152,18 +141,18 @@
           foodForm.style.display="none";
           content.style.display="block";
           e.target.value="Back to Main";
+          addFoodBtn.style.visibility = "hidden";
           displayList = false;
           }
           else {
               foodForm.style.display="block";
               content.style.display="none";
+              addFoodBtn.style.visibility = "visible";
               e.target.value="Show List";
               displayList = true;
           }
       };
-      //attach submit event (for clicking submit or hitting enter)
       //getForm.addEventListener('submit', getFoods);
-      
       getFoodBtn.addEventListener("click", getFoods);
     };
 
@@ -188,16 +177,16 @@
       -->
     <div id="div1" class="boxes">  
     <p class="goal">Goal: XX</p>
-    <form id="foodForm" action="/addFood" method="post">
+    <form id="foodForm" action="/addFood" method="post" >
       <p><label for="foodName">Food Name: </label>
       <input id="foodNameField" type="text" name="foodName" />
       </p>
         <p>
-      <label for="calories">Calories: </label>
+      <label for="calories">Calories Per Serving: </label>
       <input id="caloriesField" type="number" name="calories" min="0" max="10000" step="1"/>
         </p>
      <p>
-      <label for="quantity">Quantity: </label>
+      <label for="quantity">Servings Quantity: </label>
       <input id="quantityField" type="number" name="quantity" min="1" max="30" step=".5"/>
     </p>
     </form> 
