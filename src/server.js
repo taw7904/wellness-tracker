@@ -55,7 +55,7 @@ const handlePost = (request, response, parsedUrl) => {
       jsonHandler.addFood(request, response, bodyParams);
     });
   }
-    if (parsedUrl.pathname === '/addExercise') {
+  if (parsedUrl.pathname === '/addExercise') {
     const body = [];
     request.on('error', (err) => {
       console.dir(err);

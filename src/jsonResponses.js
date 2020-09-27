@@ -1,6 +1,6 @@
-const users = {};
+// const users = {};
 const foods = {};
-const glasses = {};
+// const glasses = {};
 const exercises = {};
 // const rest = {};
 
@@ -117,7 +117,6 @@ const addExercise = (request, response, body) => {
   }
   return respondJSONMeta(request, response, responseCode);
 };
-
 
 const notFound = (request, response) => {
   const responseJSON = {

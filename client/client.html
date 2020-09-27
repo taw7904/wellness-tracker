@@ -6,6 +6,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
     const content = document.querySelector('#content');
+    const foodContent = document.querySelector('#foodContent');
+    const exerciseContent = document.querySelector('#exerciseContent');
 
     const parseJSON = (xhr, content) => {
       //parse response (obj will be empty in a 204 updated)
@@ -20,13 +22,11 @@
         const foodList = document.createElement('ul');
         const foodObj = obj.foods;
         for (const [key, value] of Object.entries(foodObj)) {
-            //console.log(`${key}: ${value}`);
-            //console.dir(value);
             let foodListItem = document.createElement('li');
             foodListItem.innerHTML = "<b>" + value.foodName + ":</b> " + value.quantity + " @ " + value.calories + " calories each";
             foodList.appendChild(foodListItem);
             }
-        content.appendChild(foodList);
+        foodContent.appendChild(foodList);
       }
         
     if(obj.exercises) {
@@ -42,7 +42,7 @@
     };
 
     //function to handle our response
-    const handleResponse = (xhr, parseResponse) => {
+    const handleResponse = (xhr, parseResponse, formName) => {
       switch(xhr.status) {
         case 200: //success
           //just show the list
@@ -72,10 +72,12 @@
 
     //function to send our post request
     const sendPost = (e, foodForm) => {
+        foodContent.innerHTML = "";
       //grab the forms action (url to go to)
       //and method (HTTP method - POST in this case)
       const foodAction = foodForm.getAttribute('action');
       const foodMethod = foodForm.getAttribute('method');
+        let formName="foodForm";
       
       //grab the form's name and age fields so we can check user input
       const foodNameField = foodForm.querySelector('#foodNameField');
@@ -87,7 +89,7 @@
       xhr.open(foodMethod, foodAction);
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       xhr.setRequestHeader ('Accept', 'application/json');
-      xhr.onload = () => handleResponse(xhr, true);
+      xhr.onload = () => handleResponse(xhr, true, formName);
       
       //build our x-www-form-urlencoded format.
       //query string format: key=value&key2=value2
@@ -107,8 +109,10 @@
     };
 
     const sendPostExercise = (e, exerciseForm) => {
+        exerciseContent.innerHTML = "";
       const exerciseAction = exerciseForm.getAttribute('action');
       const exerciseMethod = exerciseForm.getAttribute('method');
+        let formName = "exerciseForm";
       
       //grab the form's name and age fields so we can check user input
       const exerciseTypeField = exerciseForm.querySelector('#exerciseTypeField');
@@ -119,7 +123,7 @@
       xhr.open(exerciseMethod, exerciseAction);
       xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
       xhr.setRequestHeader ('Accept', 'application/json');
-      xhr.onload = () => handleResponse(xhr, true);
+      xhr.onload = () => handleResponse(xhr, true, formName);
         
       const exerciseFormData = `exerciseType=${exerciseTypeField.value}&duration=${minutesField.value}`;
       
@@ -134,9 +138,9 @@
       return false;
     };
 
-    const requestUpdate = (e, foodForm) => {
-      const url = foodForm.querySelector('#urlField').value;
-      const method = foodForm.querySelector('#methodSelect').value;
+    const requestUpdate = (e, formURL, formMethod) => {
+      const url = formURL;
+      const method = formMethod;
       const xhr = new XMLHttpRequest();
       xhr.open(method, url); 
       xhr.setRequestHeader('Accept', 'application/json');
@@ -188,17 +192,17 @@
       const getFoods = (e) => {
           if(displayList) {
           //clear what's in the content so all they see is the list
-          content.innerHTML="";
-          requestUpdate(e, getForm);
+          foodContent.innerHTML="";
+          requestUpdate(e, "/getFoods", "get");
           foodForm.style.display="none";
-          content.style.display="block";
+          foodContent.style.display="block";
           e.target.value="Back to Main";
           addFoodBtn.disabled = true;
           displayList = false;
           }
           else {
               foodForm.style.display="block";
-              content.style.display="none";
+              foodContent.style.display="none";
               addFoodBtn.disabled = false;
               e.target.value="Show List";
               displayList = true;
@@ -210,10 +214,11 @@
       addExerciseBtn.addEventListener("click", addExercise);
       let displayExerciseList = true;
       const getExercise = (e) => {
+          console.log(displayExerciseList);
           if(displayExerciseList) {
           //clear what's in the content so all they see is the list
           exerciseContent.innerHTML="";
-          requestUpdate(e, getForm);
+          requestUpdate(e, "/getExercise", "get");
           exerciseForm.style.display="none";
           exerciseContent.style.display="block";
           e.target.value="Back to Main";
@@ -222,7 +227,7 @@
           }
           else {
               exerciseForm.style.display="block";
-              content.style.display="none";
+              exerciseContent.style.display="none";
               addExerciseBtn.disabled = false;
               e.target.value="Show List";
               displayExerciseList = true;
@@ -261,7 +266,7 @@
       <input id="addFoodBtn" type="button" value="Add Food"/>
         <input id="getFoodBtn" type="button" value="Show List" />
     </p>
-    <section id="content"></section>
+    <section id="foodContent"></section>
     </div>
       
     <div id="div2" class="boxes">
@@ -308,20 +313,8 @@
     </form> 
     <span class="log">Log: </span>
       </div>
-        
     </section>
-      
-      <br>
     
-    <form id="getForm" action="/getFoods" method="get">
-      <select id='urlField'>
-        <option value='/getFoods'>/getFoods</option>
-        <option value='/notReal'>/notReal</option>
-      </select>
-      <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
-      </select>
-    </form>
+    <section id="content"></section>
 </body>
 </html>
