@@ -1,7 +1,7 @@
 const users = {};
 const foods = {};
-// const glasses = {};
-// const exercises = {};
+const glasses = {};
+const exercises = {};
 // const rest = {};
 
 // function to respond with a json object
@@ -21,17 +21,7 @@ const respondJSONMeta = (request, response, status) => {
   response.end();
 };
 
-// return user object as JSON
-const getUsers = (request, response) => {
-  const responseJSON = {
-    users,
-  };
-  return respondJSON(request, response, 200, responseJSON);
-};
-
-const getUsersMeta = (request, response) => respondJSONMeta(request, response, 200);
-
-// return user object as JSON
+// return food object as JSON
 const getFoods = (request, response) => {
   const responseJSON = {
     foods,
@@ -80,34 +70,44 @@ const addFood = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+// return exercise object as JSON
+const getExercise = (request, response) => {
+  const responseJSON = {
+    exercises,
+  };
+  return respondJSON(request, response, 200, responseJSON);
+};
+
+const getExerciseMeta = (request, response) => respondJSONMeta(request, response, 200);
+
 // function to add a user from a POST body
 // body contains information from the user
-const addUser = (request, response, body) => {
+const addExercise = (request, response, body) => {
   // default json message -> assume the user sent an improper request
   const responseJSON = {
-    message: 'Name and age are both required.',
+    message: 'Please enter the exercise type and duration.',
   };
 
   // check to make sure we have both fields
   // if either are missing, send back an error message as a 400 badRequest
-  if (!body.name || !body.age) {
+  if (!body.exerciseType || !body.duration) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  // default status code to 201 created - we assume user doesn't exist
+  // default status code - assuming item is not yet created
   let responseCode = 201;
 
-  // if user already exists, switch to a 204 updated status
-  if (users[body.name]) {
+  // if already exists, switch to a 204 updated status
+  if (exercises[body.exerciseType]) {
     responseCode = 204;
   } else {
     // otherwise create an empty object with that name
-    users[body.name] = {};
-    users[body.name].name = body.name;
+    exercises[body.exerciseType] = {};
+    exercises[body.exerciseType].exerciseType = body.exerciseType;
   }
 
-  users[body.name].age = body.age;
+  exercises[body.exerciseType].duration = body.duration;
 
   // if response is created, then set our created message
   // and sent response with a message
@@ -115,11 +115,9 @@ const addUser = (request, response, body) => {
     responseJSON.message = 'Created Successfully';
     return respondJSON(request, response, responseCode, responseJSON);
   }
-  // 204 has an empty payload, just a success
-  // It cannot have a body, so we just send a 204 without a message
-  // 204 will not alter the browser in any way!!! No content response
   return respondJSONMeta(request, response, responseCode);
 };
+
 
 const notFound = (request, response) => {
   const responseJSON = {
@@ -134,12 +132,12 @@ const notFoundMeta = (request, response) => respondJSONMeta(request, response, 4
 
 // public exports
 module.exports = {
-  getUsers,
-  getUsersMeta,
-  addUser,
   getFoods,
   getFoodsMeta,
   addFood,
+  getExercise,
+  getExerciseMeta,
+  addExercise,
   notFound,
   notFoundMeta,
 };

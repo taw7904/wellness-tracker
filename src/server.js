@@ -10,20 +10,21 @@ const urlStruct = {
   GET: {
     '/': htmlHandler.getIndex,
     '/style.css': htmlHandler.getStyle,
-    '/getUsers': jsonHandler.getUsers,
+    '/edit.png': htmlHandler.getEditIcon,
     '/getFoods': jsonHandler.getFoods,
+    '/getExercise': jsonHandler.getExercise,
     notFound: jsonHandler.notFound,
   },
   HEAD: {
-    '/getUsers': jsonHandler.getUsersMeta,
     '/getFoods': jsonHandler.getFoodsMeta,
+    '/getExercise': jsonHandler.getExerciseMeta,
     notFound: jsonHandler.notFoundMeta,
   },
 };
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
-  // if post is to /addUser (our only POST url)
+  // if post is to /addUser
   if (parsedUrl.pathname === '/addFood') {
     // uploads come in as a byte stream that we need
     // to reassemble once it's all arrived
@@ -52,6 +53,22 @@ const handlePost = (request, response, parsedUrl) => {
       const bodyParams = query.parse(bodyString);
       // pass to our addUser function
       jsonHandler.addFood(request, response, bodyParams);
+    });
+  }
+    if (parsedUrl.pathname === '/addExercise') {
+    const body = [];
+    request.on('error', (err) => {
+      console.dir(err);
+      response.statusCode = 400;
+      response.end();
+    });
+    request.on('data', (chunk) => {
+      body.push(chunk);
+    });
+    request.on('end', () => {
+      const bodyString = Buffer.concat(body).toString();
+      const bodyParams = query.parse(bodyString);
+      jsonHandler.addExercise(request, response, bodyParams);
     });
   }
 };

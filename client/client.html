@@ -28,6 +28,17 @@
             }
         content.appendChild(foodList);
       }
+        
+    if(obj.exercises) {
+        const exerciseList = document.createElement('ul');
+        const exerciseObj = obj.exercises;
+        for (const [key, value] of Object.entries(exerciseObj)) {
+            let exerciseListItem = document.createElement('li');
+            exerciseListItem.innerHTML = "<b>" + value.exerciseType + ":</b> for " + value.duration + " minutes";
+            exerciseList.appendChild(exerciseListItem);
+            }
+        exerciseContent.appendChild(exerciseList);
+      }
     };
 
     //function to handle our response
@@ -95,6 +106,34 @@
       return false;
     };
 
+    const sendPostExercise = (e, exerciseForm) => {
+      const exerciseAction = exerciseForm.getAttribute('action');
+      const exerciseMethod = exerciseForm.getAttribute('method');
+      
+      //grab the form's name and age fields so we can check user input
+      const exerciseTypeField = exerciseForm.querySelector('#exerciseTypeField');
+      const minutesField = exerciseForm.querySelector('#minutesField');
+      
+      //create a new Ajax request (remember this is asynchronous)
+      const xhr = new XMLHttpRequest();
+      xhr.open(exerciseMethod, exerciseAction);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader ('Accept', 'application/json');
+      xhr.onload = () => handleResponse(xhr, true);
+        
+      const exerciseFormData = `exerciseType=${exerciseTypeField.value}&duration=${minutesField.value}`;
+      
+      //send our request with the data
+      xhr.send(exerciseFormData);
+      if(e) {
+          e.preventDefault();
+      }
+        exerciseForm.reset();
+        exerciseForm.elements[0].focus();
+        exerciseContent.style.display="block";
+      return false;
+    };
+
     const requestUpdate = (e, foodForm) => {
       const url = foodForm.querySelector('#urlField').value;
       const method = foodForm.querySelector('#methodSelect').value;
@@ -120,6 +159,10 @@
       const foodForm = document.querySelector('#foodForm');
       const addFoodBtn = document.querySelector("#addFoodBtn");
       const getFoodBtn = document.querySelector("#getFoodBtn");
+      const exerciseForm = document.querySelector("#exerciseForm");
+      const addExerciseBtn = document.querySelector("#addExerciseBtn");
+      const getExerciseBtn = document.querySelector("#getExerciseBtn");
+        
       //set up to see if enter key is hit on the form
       for(let i=0; i<foodForm.elements.length; i++) {
           let inputField = foodForm.elements[i];
@@ -129,6 +172,15 @@
              } 
           });
       }
+      for(let i=0; i<exerciseForm.elements.length; i++) {
+          let inputField = exerciseForm.elements[i];
+          inputField.addEventListener("keydown", function(e) {
+             if(e.keyCode === 13) {
+                 addExercise();
+             } 
+          });
+      }
+        
       //create handler
       const addFood = (e) => sendPost(e, foodForm);
       addFoodBtn.addEventListener("click", addFood);
@@ -141,19 +193,42 @@
           foodForm.style.display="none";
           content.style.display="block";
           e.target.value="Back to Main";
-          addFoodBtn.style.visibility = "hidden";
+          addFoodBtn.disabled = true;
           displayList = false;
           }
           else {
               foodForm.style.display="block";
               content.style.display="none";
-              addFoodBtn.style.visibility = "visible";
+              addFoodBtn.disabled = false;
               e.target.value="Show List";
               displayList = true;
           }
       };
-      //getForm.addEventListener('submit', getFoods);
       getFoodBtn.addEventListener("click", getFoods);
+        
+    const addExercise = (e) => sendPostExercise(e, exerciseForm);
+      addExerciseBtn.addEventListener("click", addExercise);
+      let displayExerciseList = true;
+      const getExercises = (e) => {
+          if(displayExerciseList) {
+          //clear what's in the content so all they see is the list
+          exerciseContent.innerHTML="";
+          requestUpdate(e, getForm);
+          exerciseForm.style.display="none";
+          exerciseContent.style.display="block";
+          e.target.value="Back to Main";
+          addExerciseBtn.disabled = true;
+          displayExerciseList = false;
+          }
+          else {
+              exerciseForm.style.display="block";
+              content.style.display="none";
+              addExerciseBtn.disabled = false;
+              e.target.value="Show List";
+              displayExerciseList = true;
+          }
+      };
+      getExerciseBtn.addEventListener("click", getExercises);
     };
 
     window.onload = init;
@@ -166,17 +241,9 @@
     </section>
     
   <section id="top">
-    <!--<h3>Wellness Tracker</h3>
-    <form id="nameForm" action="/addUser" method="post">
-      <label for="name">Name: </label>
-      <input id="nameField" type="text" name="name" />
-      <label for="age">Age: </label>
-      <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input type="submit" value="Add User" />
-    </form>
-      -->
     <div id="div1" class="boxes">  
-    <p class="goal">Goal: XX</p>
+    <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+    <p class="currTotal">Current Total : XX</p>
     <form id="foodForm" action="/addFood" method="post" >
       <p><label for="foodName">Food Name: </label>
       <input id="foodNameField" type="text" name="foodName" />
@@ -198,7 +265,8 @@
     </div>
       
     <div id="div2" class="boxes">
-        <p class="goal">Goal: XX</p>
+        <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="currTotal">Current Total : XX</p>
     <form id="waterForm" action="/addWater" method="post">
       <p><label for="glassesNum">Number of Glasses: </label>
       <input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1"/></p>
@@ -211,19 +279,24 @@
     
     <section id="bottom">
     <div id="div3" class="boxes">
-        <p class="goal">Goal: XX</p>
+        <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="currTotal">Current Total : XX</p>
     <form id="exerciseForm" action="/addExercise" method="post">
       <p><label for="exerciseType">Exercise Type: </label>
       <input id="exerciseTypeField" type="text" name="exerciseType" /></p>
       <p><label for="minutes">Duration (Minutes): </label>
       <input id="minutesField" type="number" name="minutes" min="0" max="600" step="1"/></p>
-      <p><input type="submit" value="Add Exercise" /></p>
     </form>
-    <span class="log">Log: </span>
+    <p>
+      <input id="addExerciseBtn" type="button" value="Add Exercise"/>
+        <input id="getExerciseBtn" type="button" value="Show List" />
+    </p>
+    <section id="exerciseContent"></section>
     </div>
       
     <div id="div4" class="boxes">
-        <p class="goal">Goal: XX</p>
+        <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="currTotal">Current Total : XX</p>
     <form id="restForm" action="/addRest" method="post">
       <p><label for="sleep">Sleep (Hours): </label>
       <input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5"/></p>
@@ -249,22 +322,6 @@
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>
-      <!--<input type="submit" value="Get Foods" />-->
     </form>
-    <!--
-    <form id="userForm" action="/getUsers" method="get">
-      <select id='urlField'>
-        <option value='/getUsers'>/getUsers</option>
-        <option value='/notReal'>/notReal</option>
-      </select>
-      <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
-      </select>
-      <input type="submit" value="Get User" />
-    </form>
-    
-  <section id="content">
-  </section> -->
 </body>
 </html>

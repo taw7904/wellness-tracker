@@ -20,6 +20,11 @@ input[type=text] {
 
 .goal {
     text-align: center;
+    font-size: 1.5em;
+}
+
+.currTotal {
+    text-align: center;
 }
 
 #top, #bottom {
@@ -50,8 +55,23 @@ span {
   text-align: center;
 }*/
 
+#div1 {
+    background-color: #cfecff;
+}
+
+#div2 {
+    background-color: #ffe7c9;
+}
+
+#div3 {
+    background-color: #cfffd5;
+}
+
+#div4 {
+    background-color: #e3cfff;
+}
+
 .boxes {
-    background-color: lightblue;
     padding-right: 1.5em;
     padding-left: 1.5em;
     padding-bottom: 0.5em;
