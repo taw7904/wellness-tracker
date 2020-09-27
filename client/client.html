@@ -206,10 +206,10 @@
       };
       getFoodBtn.addEventListener("click", getFoods);
         
-    const addExercise = (e) => sendPostExercise(e, exerciseForm);
+      const addExercise = (e) => sendPostExercise(e, exerciseForm);
       addExerciseBtn.addEventListener("click", addExercise);
       let displayExerciseList = true;
-      const getExercises = (e) => {
+      const getExercise = (e) => {
           if(displayExerciseList) {
           //clear what's in the content so all they see is the list
           exerciseContent.innerHTML="";
@@ -228,7 +228,7 @@
               displayExerciseList = true;
           }
       };
-      getExerciseBtn.addEventListener("click", getExercises);
+      getExerciseBtn.addEventListener("click", getExercise);
     };
 
     window.onload = init;
