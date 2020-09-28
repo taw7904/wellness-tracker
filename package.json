@@ -1,11 +1,11 @@
 {
-  "name": "http-api-assignment-ii",
+  "name": "wellness-tracker",
   "version": "1.0.0",
   "engines": {
     "node": "12.18.3",
     "npm": "6.14.6"
   },
-  "description": "HTTP API Assignment II",
+  "description": "Wellness Tracker",
   "main": "server.js",
   "dependencies": {
     "animate.css": "^4.1.1",
@@ -21,12 +21,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taw7904/http-api-assignment-ii.git"
+    "url": "git+https://github.com/taw7904/wellness-tracker.git"
   },
   "author": "Taylor Ward",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/taw7904/http-api-assignment-ii/issues"
+    "url": "https://github.com/taw7904/wellness-tracker/issues"
   },
-  "homepage": "https://github.com/taw7904/http-api-assignment-ii#readme"
+  "homepage": "https://github.com/taw7904/wellness-tracker#readme"
 }
