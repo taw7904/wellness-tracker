@@ -44,6 +44,14 @@
 
     //function to handle our response
     const handleResponse = (xhr, parseResponse, formName) => {
+        //animation controls
+      content.classList.remove('animate__bounceOut', 'animate__delay-1s');
+      content.style.display = "block";
+      content.classList.add('animate__animated', 'animate__bounceIn');
+      content.addEventListener('animationend', () => {
+        content.classList.remove('animate__bounceIn');
+        content.classList.add('animate__bounceOut', 'animate__delay-1s');
+      });
       switch(xhr.status) {
         case 200: //success
           //just show the list
@@ -167,6 +175,7 @@
       const exerciseForm = document.querySelector("#exerciseForm");
       const addExerciseBtn = document.querySelector("#addExerciseBtn");
       const getExerciseBtn = document.querySelector("#getExerciseBtn");
+      content.style.display = "none";
         
       //set up to see if enter key is hit on the form
       for(let i=0; i<foodForm.elements.length; i++) {
@@ -248,50 +257,38 @@
     
   <section id="top">
     <div id="div1" class="boxes">  
-    <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+    <p class="goal">Food Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
     <p class="currTotal">Current Total : XX</p>
-    <form id="foodForm" action="/addFood" method="post" >
-      <p><label for="foodName">Food Name: </label>
-      <input id="foodNameField" type="text" name="foodName" />
-      </p>
-        <p>
-      <label for="calories">Calories Per Serving: </label>
-      <input id="caloriesField" type="number" name="calories" min="0" max="10000" step="1"/>
-        </p>
-     <p>
-      <label for="quantity">Servings Quantity: </label>
-      <input id="quantityField" type="number" name="quantity" min="1" max="30" step=".5"/>
-    </p>
+    <form id="foodForm" action="/addFood" method="post">
+      <p><input id="foodNameField" type="text" name="foodName" placeholder="Food Name"/></p>
+      <p><input id="caloriesField" type="number" name="calories" min="0" max="10000" step="1" placeholder="Calories Per Serving"/></p>
+      <p><input id="quantityField" type="number" name="quantity" min="1" max="30" step=".5" placeholder="Servings Quantity"/></p>
     </form> 
      <p>
       <input id="addFoodBtn" type="button" value="Add Food"/>
-        <input id="getFoodBtn" type="button" value="Show List" />
+      <input id="getFoodBtn" type="button" value="Show List" />
     </p>
     <section id="foodContent"></section>
     </div>
       
     <div id="div2" class="boxes">
-        <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="goal">Water Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
         <p class="currTotal">Current Total : XX</p>
     <form id="waterForm" action="/addWater" method="post">
-      <p><label for="glassesNum">Number of Glasses: </label>
-      <input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1"/></p>
+      <p><input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1" placeholder="Number of Glasses"/></p>
       <p><input type="submit" value="Add Glass" /></p>
     </form> 
-    <span class="log">Log: </span>
     </div>
       
     </section>
     
     <section id="bottom">
     <div id="div3" class="boxes">
-        <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="goal">Exercise Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
         <p class="currTotal">Current Total : XX</p>
     <form id="exerciseForm" action="/addExercise" method="post">
-      <p><label for="exerciseType">Exercise Type: </label>
-      <input id="exerciseTypeField" type="text" name="exerciseType" /></p>
-      <p><label for="minutes">Duration (Minutes): </label>
-      <input id="minutesField" type="number" name="minutes" min="0" max="600" step="1"/></p>
+      <p><input id="exerciseTypeField" type="text" name="exerciseType" placeholder="Exercise Type"/></p>
+      <p><input id="minutesField" type="number" name="minutes" min="0" max="600" step="1" placeholder="Duration (Minutes)"/></p>
     </form>
     <p>
       <input id="addExerciseBtn" type="button" value="Add Exercise"/>
@@ -301,18 +298,14 @@
     </div>
       
     <div id="div4" class="boxes">
-        <p class="goal">Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="goal">Sleep Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
         <p class="currTotal">Current Total : XX</p>
     <form id="restForm" action="/addRest" method="post">
-      <p><label for="sleep">Sleep (Hours): </label>
-      <input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5"/></p>
-      <p><label for="relaxation">Relaxation Time (Minutes): </label>
-      <input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="1"/></p>
-      <p><label for="mood">Mood: </label>
-      <input id="moodField" type="text" name="mood" /></p>
+      <p><input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5" placeholder="Sleep (Hours)"/></p>
+      <p><input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="1" placeholder="Relaxation Time"/></p>
+      <p><input id="moodField" type="text" name="mood" placeholder="Mood"/></p>
       <p><input type="submit" value="Add Rest" /></p>
     </form> 
-    <span class="log">Log: </span>
       </div>
     </section>
     
