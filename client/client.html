@@ -10,244 +10,249 @@
     const foodContent = document.querySelector('#foodContent');
     const exerciseContent = document.querySelector('#exerciseContent');
 
-    const parseJSON = (xhr, content) => {
-      //parse response (obj will be empty in a 204 updated)
-      const obj = JSON.parse(xhr.response);
-      if(obj.message) {
-        const p = document.createElement('p');
-        p.textContent = `${obj.message}`;
-        content.appendChild(p);
-      }
-        
-      if(obj.foods) {
-        const foodList = document.createElement('ul');
-        const foodObj = obj.foods;
-        for (const [key, value] of Object.entries(foodObj)) {
-            let foodListItem = document.createElement('li');
-            foodListItem.innerHTML = "<b>" + value.foodName + ":</b> " + value.quantity + " @ " + value.calories + " calories each";
-            foodList.appendChild(foodListItem);
-            }
-        foodContent.appendChild(foodList);
-      }
-        
-    if(obj.exercises) {
-        const exerciseList = document.createElement('ul');
-        const exerciseObj = obj.exercises;
-        for (const [key, value] of Object.entries(exerciseObj)) {
-            let exerciseListItem = document.createElement('li');
-            exerciseListItem.innerHTML = "<b>" + value.exerciseType + ":</b> for " + value.duration + " minutes";
-            exerciseList.appendChild(exerciseListItem);
-            }
-        exerciseContent.appendChild(exerciseList);
-      }
-    };
+const parseJSON = (xhr, content) => {
+  // parse response (obj will be empty in a 204 updated)
+  const obj = JSON.parse(xhr.response);
+  if (obj.message) {
+    const p = document.createElement('p');
+    p.textContent = `${obj.message}`;
+    content.appendChild(p);
+  }
 
-    //function to handle our response
-    const handleResponse = (xhr, parseResponse, formName) => {
-        //animation controls
-      content.classList.remove('animate__bounceOut', 'animate__delay-1s');
-      content.style.display = "block";
-      content.classList.add('animate__animated', 'animate__bounceIn');
-      content.addEventListener('animationend', () => {
-        content.classList.remove('animate__bounceIn');
-        content.classList.add('animate__bounceOut', 'animate__delay-1s');
-      });
-      switch(xhr.status) {
-        case 200: //success
-          //just show the list
-          //content.innerHTML = `<b>Success</b>`;
-          break;
-        case 201: //created
-          content.innerHTML = '<b>Added to log!</b>';
-          break;
-        case 204: //updated (no response back from server)
-          content.innerHTML = '<b>Log updated!</b>';
-          return;
-        case 400: //bad request
-          content.innerHTML = `<b>Bad Request</b>`;
-          break;
-        case 404: //not found
-          content.innerHTML = `<b>Not Found</b>`;
-          break;
-        default: //our default is not found, but just keeping this in case
-          content.innerHTML = `Error code not implemented by client.`;
-          break;
-      }
-     //parse response - only parse if it's NOT a header request
-        if(parseResponse) {
-            parseJSON(xhr, content);
-        }
-    };
+  if (obj.foods) {
+    const foodList = document.createElement('ul');
+    const foodObj = obj.foods;
+    for (const [key, value] of Object.entries(foodObj)) {
+      const foodListItem = document.createElement('li');
+      foodListItem.innerHTML = `<b>${value.foodName}:</b> ${value.quantity} @ ${value.calories} calories each`;
+      foodList.appendChild(foodListItem);
+    }
+    foodContent.appendChild(foodList);
+  }
 
-    //function to send our post request
-    const sendPost = (e, foodForm) => {
-        foodContent.innerHTML = "";
-      //grab the forms action (url to go to)
-      //and method (HTTP method - POST in this case)
-      const foodAction = foodForm.getAttribute('action');
-      const foodMethod = foodForm.getAttribute('method');
-        let formName="foodForm";
-      
-      //grab the form's name and age fields so we can check user input
-      const foodNameField = foodForm.querySelector('#foodNameField');
-      const caloriesField = foodForm.querySelector('#caloriesField');
-      const quantityField = foodForm.querySelector('#quantityField');
-      
-      //create a new Ajax request (remember this is asynchronous)
-      const xhr = new XMLHttpRequest();
-      xhr.open(foodMethod, foodAction);
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.setRequestHeader ('Accept', 'application/json');
-      xhr.onload = () => handleResponse(xhr, true, formName);
-      
-      //build our x-www-form-urlencoded format.
-      //query string format: key=value&key2=value2
-      const formData = `foodName=${foodNameField.value}&calories=${caloriesField.value}&quantity=${quantityField.value}`;
-      
-      //send our request with the data
-      xhr.send(formData);
-      if(e) {
-          e.preventDefault();
-      }
-      //clear the fields in form when done
-        foodForm.reset();
-        //set focus back to first input
-        foodForm.elements[0].focus();
-        content.style.display="block";
-      return false;
-    };
+  if (obj.exercises) {
+    const exerciseList = document.createElement('ul');
+    const exerciseObj = obj.exercises;
+    for (const [key, value] of Object.entries(exerciseObj)) {
+      const exerciseListItem = document.createElement('li');
+      exerciseListItem.innerHTML = `<b>${value.exerciseType}:</b> for ${value.duration} minutes`;
+      exerciseList.appendChild(exerciseListItem);
+    }
+    exerciseContent.appendChild(exerciseList);
+  }
+};
 
-    const sendPostExercise = (e, exerciseForm) => {
-        exerciseContent.innerHTML = "";
-      const exerciseAction = exerciseForm.getAttribute('action');
-      const exerciseMethod = exerciseForm.getAttribute('method');
-        let formName = "exerciseForm";
-      
-      //grab the form's name and age fields so we can check user input
-      const exerciseTypeField = exerciseForm.querySelector('#exerciseTypeField');
-      const minutesField = exerciseForm.querySelector('#minutesField');
-      
-      //create a new Ajax request (remember this is asynchronous)
-      const xhr = new XMLHttpRequest();
-      xhr.open(exerciseMethod, exerciseAction);
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-      xhr.setRequestHeader ('Accept', 'application/json');
-      xhr.onload = () => handleResponse(xhr, true, formName);
-        
-      const exerciseFormData = `exerciseType=${exerciseTypeField.value}&duration=${minutesField.value}`;
-      
-      //send our request with the data
-      xhr.send(exerciseFormData);
-      if(e) {
-          e.preventDefault();
-      }
-        exerciseForm.reset();
-        exerciseForm.elements[0].focus();
-        exerciseContent.style.display="block";
-      return false;
-    };
+let foodNameField;
+let caloriesField;
+let quantityField;
+let exerciseTypeField;
+let minutesField;
 
-    const requestUpdate = (e, formURL, formMethod) => {
-      const url = formURL;
-      const method = formMethod;
-      const xhr = new XMLHttpRequest();
-      xhr.open(method, url); 
-      xhr.setRequestHeader('Accept', 'application/json');
+// function to handle our response
+const handleResponse = (xhr, parseResponse, buttonType) => {
+    if(buttonType!=null || buttonType!=undefined) {
+        //if it's show list button clicked, do nothing
+        //we're only sending this parameter if it's a show list button
+    }
+    else {
+    //animation controls - only animate if it was an add button, not show list button
+    content.classList.remove('animate__bounceOut', 'animate__delay-1s');
+    content.style.display = 'block';
+    content.classList.add('animate__animated', 'animate__bounceIn');
+    content.addEventListener('animationend', () => {
+    content.classList.remove('animate__bounceIn');
+    content.classList.add('animate__bounceOut', 'animate__delay-1s');
+    });
+    }
+    
+  switch (xhr.status) {
+    case 200: // success
+      // just show the list
+      // content.innerHTML = `<b>Success</b>`;
+      break;
+    case 201: // created
+      content.innerHTML = '<b>Added to log!</b>';
+      break;
+    case 204: // updated (no response back from server)
+      content.innerHTML = '<b>Log updated!</b>';
+      return;
+    case 400: // bad request
+      content.innerHTML = '<b>Bad Request</b>';
+      break;
+    case 404: // not found
+      content.innerHTML = '<b>Not Found</b>';
+      break;
+    default: // our default is not found, but just keeping this in case
+      content.innerHTML = 'Error code not implemented by client.';
+      break;
+  }
+  // parse response - only parse if it's NOT a header request
+  if (parseResponse) {
+    parseJSON(xhr, content);
+  }
+};
 
-      if(method == 'get') {
-        //if getting data, parse request to get json
-        xhr.onload = () => handleResponse(xhr, true);
-      } else {
-        // HEAD request for no parse, no body responses
-        // set onload to check meta data and NOT message
-        xhr.onload = () => handleResponse(xhr, false);
-      }
-      xhr.send();
-      e.preventDefault();
-      return false;
-    };
+const checkFoodInput = (formName) => {
+    foodNameField = formName.querySelector('#foodNameField');
+    caloriesField = formName.querySelector('#caloriesField');
+    quantityField = formName.querySelector('#quantityField');
+}
 
-    const init = () => {
-      //grab form
-      const foodForm = document.querySelector('#foodForm');
-      const addFoodBtn = document.querySelector("#addFoodBtn");
-      const getFoodBtn = document.querySelector("#getFoodBtn");
-      const exerciseForm = document.querySelector("#exerciseForm");
-      const addExerciseBtn = document.querySelector("#addExerciseBtn");
-      const getExerciseBtn = document.querySelector("#getExerciseBtn");
-      content.style.display = "none";
-        
-      //set up to see if enter key is hit on the form
-      for(let i=0; i<foodForm.elements.length; i++) {
-          let inputField = foodForm.elements[i];
-          inputField.addEventListener("keydown", function(e) {
-             if(e.keyCode === 13) {
-                 addFood();
-             } 
-          });
-      }
-      for(let i=0; i<exerciseForm.elements.length; i++) {
-          let inputField = exerciseForm.elements[i];
-          inputField.addEventListener("keydown", function(e) {
-             if(e.keyCode === 13) {
-                 addExercise();
-             } 
-          });
-      }
-        
-      //create handler
-      const addFood = (e) => sendPost(e, foodForm);
-      addFoodBtn.addEventListener("click", addFood);
-      let displayList = true;
-      const getFoods = (e) => {
-          if(displayList) {
-          //clear what's in the content so all they see is the list
-          foodContent.innerHTML="";
-          requestUpdate(e, "/getFoods", "get");
-          foodForm.style.display="none";
-          foodContent.style.display="block";
-          e.target.value="Back to Main";
-          addFoodBtn.disabled = true;
-          displayList = false;
+const checkExerciseInput = (formName) => {
+    exerciseTypeField = formName.querySelector('#exerciseTypeField');
+    minutesField = formName.querySelector('#minutesField');
+}
+
+const foodFormData = () => {
+    return `foodName=${foodNameField.value}&calories=${caloriesField.value}&quantity=${quantityField.value}`;
+}
+
+const exerciseFormData = () => {
+    return `exerciseType=${exerciseTypeField.value}&duration=${minutesField.value}`;
+}
+
+// function to send our post request
+const sendPost = (e, formName) => {
+    let contentArea, formData;
+    //if the enter key is triggering it, it wont have the button data set
+    if(!e.srcElement.dataset.contentarea) {
+        contentArea = document.querySelector(e.path[2].dataset.contentarea);
+    }
+    //otherwise, grab it from the button dataset
+    else {
+        contentArea = document.querySelector(e.srcElement.dataset.contentarea);
+    }
+    
+  contentArea.innerHTML = '';
+  // grab the forms action (url to go to) and method
+  const formAction = formName.getAttribute('action');
+  const formMethod = formName.getAttribute('method');
+
+  // grab the food form input
+    if(formName.id==='foodForm') {
+    checkFoodInput(formName);
+    }
+    else if(formName.id==='exerciseForm') {
+        checkExerciseInput(formName);
+    }
+
+  // create a new Ajax request (remember this is asynchronous)
+  const xhr = new XMLHttpRequest();
+  xhr.open(formMethod, formAction);
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.setRequestHeader('Accept', 'application/json');
+  xhr.onload = () => handleResponse(xhr, true);
+
+    //build the proper query string of data
+   if(formName.id==='foodForm') {
+       formData = foodFormData();
+   }
+    else if(formName.id==='exerciseForm') {
+        formData = exerciseFormData();
+    }
+    
+  // send our request with the data
+  xhr.send(formData);
+  if (e) {
+    e.preventDefault();
+  }
+  // clear the fields in form when done
+  formName.reset();
+  // set focus back to first input
+  formName.elements[0].focus();
+  contentArea.style.display = 'block';
+  return false;
+};
+
+const requestUpdate = (e, formURL, formMethod) => {
+    //if its equal to "get" in first 3 strings, do animation
+  const url = formURL;
+  const method = formMethod;
+  const xhr = new XMLHttpRequest();
+  xhr.open(method, url);
+  xhr.setRequestHeader('Accept', 'application/json');
+
+  if (method == 'get') {
+    // if getting data, parse request to get json
+    xhr.onload = () => handleResponse(xhr, true, e.target.id);
+  } else {
+    // HEAD request for no parse, no body responses
+    // set onload to check meta data and NOT message
+    xhr.onload = () => handleResponse(xhr, false, e.target.id);
+  }
+  xhr.send();
+  e.preventDefault();
+  return false;
+};
+
+
+
+const init = () => {
+  // food form elements
+  const foodForm = document.querySelector('#foodForm');
+  const addFoodBtn = document.querySelector('#addFoodBtn');
+  const getFoodBtn = document.querySelector('#getFoodBtn');
+  // exercise form elements
+  const exerciseForm = document.querySelector('#exerciseForm');
+  const addExerciseBtn = document.querySelector('#addExerciseBtn');
+  const getExerciseBtn = document.querySelector('#getExerciseBtn');
+  //make sure status code is hidden because there is a background color
+  content.style.display = 'none';
+    
+  //set up the input fields so that whenever enter is clicked, it triggers the right form action
+  const setUpInputs = (form) => {
+    for (let i = 0; i < form.elements.length; i++) {
+    let inputField = form.elements[i];
+    inputField.addEventListener('keydown', (e) => {
+      if (e.keyCode === 13) {
+          if(form.id === 'foodForm') {
+              addFood(e);
           }
-          else {
-              foodForm.style.display="block";
-              foodContent.style.display="none";
-              addFoodBtn.disabled = false;
-              e.target.value="Show List";
-              displayList = true;
+          else if(form.id === 'exerciseForm') {
+              addExercise(e);
           }
-      };
-      getFoodBtn.addEventListener("click", getFoods);
-        
-      const addExercise = (e) => sendPostExercise(e, exerciseForm);
-      addExerciseBtn.addEventListener("click", addExercise);
-      let displayExerciseList = true;
-      const getExercise = (e) => {
-          console.log(displayExerciseList);
-          if(displayExerciseList) {
-          //clear what's in the content so all they see is the list
-          exerciseContent.innerHTML="";
-          requestUpdate(e, "/getExercise", "get");
-          exerciseForm.style.display="none";
-          exerciseContent.style.display="block";
-          e.target.value="Back to Main";
-          addExerciseBtn.disabled = true;
-          displayExerciseList = false;
-          }
-          else {
-              exerciseForm.style.display="block";
-              exerciseContent.style.display="none";
-              addExerciseBtn.disabled = false;
-              e.target.value="Show List";
-              displayExerciseList = true;
-          }
-      };
-      getExerciseBtn.addEventListener("click", getExercise);
-    };
+      }
+    });
+  }
+};
+    setUpInputs(foodForm);
+    setUpInputs(exerciseForm);
 
-    window.onload = init;
-  </script>
+  // create handler
+  const addFood = (e) => sendPost(e, foodForm);
+  addFoodBtn.addEventListener('click', addFood);
+  let displayList = true;
+  const getList = (e) => {
+    let urlString = e.srcElement.dataset.url;
+    let contentArea = document.querySelector(e.srcElement.dataset.contentarea);
+    let formName = document.querySelector(e.srcElement.dataset.formname);
+    let addButton = document.querySelector(e.srcElement.dataset.addbutton);
+    if (displayList) {
+      // clear what's in the content so all they see is the list
+      contentArea.innerHTML = '';
+      requestUpdate(e, urlString, 'get');
+      formName.style.display = 'none';
+      contentArea.style.display = 'block';
+      e.target.value = 'Back to Main';
+      addButton.disabled = true;
+      displayList = false;
+    } else {
+      formName.style.display = 'block';
+      contentArea.style.display = 'none';
+      addButton.disabled = false;
+      e.target.value = 'Show List';
+      displayList = true;
+    }
+  };
+  getFoodBtn.addEventListener('click', getList);
+
+  const addExercise = (e) => sendPost(e, exerciseForm);
+  addExerciseBtn.addEventListener('click', addExercise);
+  getExerciseBtn.addEventListener('click', getList);
+};
+
+window.onload = init;
+    </script>
 </head>
 <body>
     <section id="intro">
@@ -259,14 +264,14 @@
     <div id="div1" class="boxes">  
     <p class="goal">Food Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
     <p class="currTotal">Current Total : XX</p>
-    <form id="foodForm" action="/addFood" method="post">
+    <form id="foodForm" action="/addFood" method="post" data-contentarea="#foodContent">
       <p><input id="foodNameField" type="text" name="foodName" placeholder="Food Name"/></p>
       <p><input id="caloriesField" type="number" name="calories" min="0" max="10000" step="1" placeholder="Calories Per Serving"/></p>
       <p><input id="quantityField" type="number" name="quantity" min="1" max="30" step=".5" placeholder="Servings Quantity"/></p>
     </form> 
      <p>
-      <input id="addFoodBtn" type="button" value="Add Food"/>
-      <input id="getFoodBtn" type="button" value="Show List" />
+      <input id="addFoodBtn" type="button" value="Add Food" data-contentarea="#foodContent"/>
+      <input id="getFoodBtn" type="button" value="Show List" data-url="/getFoods" data-contentarea="#foodContent" data-formname="#foodForm" data-addbutton="#addFoodBtn"/>
     </p>
     <section id="foodContent"></section>
     </div>
@@ -286,13 +291,13 @@
     <div id="div3" class="boxes">
         <p class="goal">Exercise Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
         <p class="currTotal">Current Total : XX</p>
-    <form id="exerciseForm" action="/addExercise" method="post">
+    <form id="exerciseForm" action="/addExercise" method="post" data-contentarea="#exerciseContent">
       <p><input id="exerciseTypeField" type="text" name="exerciseType" placeholder="Exercise Type"/></p>
       <p><input id="minutesField" type="number" name="minutes" min="0" max="600" step="1" placeholder="Duration (Minutes)"/></p>
     </form>
     <p>
-      <input id="addExerciseBtn" type="button" value="Add Exercise"/>
-        <input id="getExerciseBtn" type="button" value="Show List" />
+      <input id="addExerciseBtn" type="button" value="Add Exercise" data-contentarea="#exerciseContent"/>
+        <input id="getExerciseBtn" type="button" value="Show List" data-url="/getExercise" data-contentarea="#exerciseContent" data-formname="#exerciseForm" data-addbutton="#addExerciseBtn"/>
     </p>
     <section id="exerciseContent"></section>
     </div>
