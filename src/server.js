@@ -24,53 +24,26 @@ const urlStruct = {
 
 // handle POST requests
 const handlePost = (request, response, parsedUrl) => {
-  // if post is to /addUser
-  if (parsedUrl.pathname === '/addFood') {
-    // uploads come in as a byte stream that we need
-    // to reassemble once it's all arrived
-    const body = [];
-    // if upload stream errors out, throw a bad request and send it back
-    request.on('error', (err) => {
-      console.dir(err);
-      response.statusCode = 400;
-      response.end();
-    });
+  const body = [];
+  request.on('error', (err) => {
+    console.dir(err);
+    response.statusCode = 400;
+    response.end();
+  });
+  request.on('data', (chunk) => {
+    body.push(chunk);
+  });
 
-    // on 'data' is for each byte of data that comes in
-    // from the upload. We will add it to our byte array.
-    // anytime new packet of info comes in, add it to the body array
-    request.on('data', (chunk) => {
-      body.push(chunk);
-    });
-
-    // on end of upload stream
-    request.on('end', () => {
-      // combine our byte array into single item
-      const bodyString = Buffer.concat(body).toString();
-      // since we are getting x-www-form-urlencoded data
-      // the format will be the same as querystrings
-      // Parse the string into an object by field name
-      const bodyParams = query.parse(bodyString);
-      // pass to our addUser function
+  // on end of upload stream
+  request.on('end', () => {
+    const bodyString = Buffer.concat(body).toString();
+    const bodyParams = query.parse(bodyString);
+    if (parsedUrl.pathname === '/addFood') {
       jsonHandler.addFood(request, response, bodyParams);
-    });
-  }
-  if (parsedUrl.pathname === '/addExercise') {
-    const body = [];
-    request.on('error', (err) => {
-      console.dir(err);
-      response.statusCode = 400;
-      response.end();
-    });
-    request.on('data', (chunk) => {
-      body.push(chunk);
-    });
-    request.on('end', () => {
-      const bodyString = Buffer.concat(body).toString();
-      const bodyParams = query.parse(bodyString);
+    } else if (parsedUrl.pathname === '/addExercise') {
       jsonHandler.addExercise(request, response, bodyParams);
-    });
-  }
+    }
+  });
 };
 
 const onRequest = (request, response) => {

@@ -35,7 +35,7 @@ const parseJSON = (xhr, content) => {
     const exerciseObj = obj.exercises;
     for (const [key, value] of Object.entries(exerciseObj)) {
       const exerciseListItem = document.createElement('li');
-      exerciseListItem.innerHTML = `<b>${value.exerciseType}:</b> for ${value.duration} minutes`;
+      exerciseListItem.innerHTML = `<b>${value.exerciseType}</b> for ${value.duration} minutes`;
       exerciseList.appendChild(exerciseListItem);
     }
     exerciseContent.appendChild(exerciseList);
