@@ -9,6 +9,10 @@
     const content = document.querySelector('#content');
     const foodContent = document.querySelector('#foodContent');
     const exerciseContent = document.querySelector('#exerciseContent');
+    const restContent = document.querySelector('#restContent');
+    let foodNameField, caloriesField, quantityField;
+    let exerciseTypeField, minutesField;
+    let sleepField, relaxationField, moodField;
 
 const parseJSON = (xhr, content) => {
   // parse response (obj will be empty in a 204 updated)
@@ -40,13 +44,18 @@ const parseJSON = (xhr, content) => {
     }
     exerciseContent.appendChild(exerciseList);
   }
+    
+    if (obj.rest) {
+    const restList = document.createElement('ul');
+    const restObj = obj.rest;
+    for (const [key, value] of Object.entries(restObj)) {
+      const restListItem = document.createElement('li');
+      restListItem.innerHTML = `<b>${value.sleep}</b> hours of sleep with ${value.relaxation} minutes of relaxation and a ${value.mood} mood!`;
+      restList.appendChild(restListItem);
+    }
+    restContent.appendChild(restList);
+  }
 };
-
-let foodNameField;
-let caloriesField;
-let quantityField;
-let exerciseTypeField;
-let minutesField;
 
 // function to handle our response
 const handleResponse = (xhr, parseResponse, buttonType) => {
@@ -103,12 +112,22 @@ const checkExerciseInput = (formName) => {
     minutesField = formName.querySelector('#minutesField');
 }
 
+const checkRestInput = (formName) => {
+    sleepField = formName.querySelector('#sleepField');
+    relaxationField = formName.querySelector('#relaxationField');
+    moodField = formName.querySelector('#moodField');
+}
+
 const foodFormData = () => {
     return `foodName=${foodNameField.value}&calories=${caloriesField.value}&quantity=${quantityField.value}`;
 }
 
 const exerciseFormData = () => {
     return `exerciseType=${exerciseTypeField.value}&duration=${minutesField.value}`;
+}
+
+const restFormData = () => {
+    return `sleep=${sleepField.value}&relaxation=${relaxationField.value}&mood=${moodField.value}`;
 }
 
 // function to send our post request
@@ -131,9 +150,10 @@ const sendPost = (e, formName) => {
   // grab the food form input
     if(formName.id==='foodForm') {
     checkFoodInput(formName);
-    }
-    else if(formName.id==='exerciseForm') {
+    } else if(formName.id==='exerciseForm') {
         checkExerciseInput(formName);
+    } else if(formName.id==='restForm') {
+        checkRestInput(formName);
     }
 
   // create a new Ajax request (remember this is asynchronous)
@@ -146,9 +166,10 @@ const sendPost = (e, formName) => {
     //build the proper query string of data
    if(formName.id==='foodForm') {
        formData = foodFormData();
-   }
-    else if(formName.id==='exerciseForm') {
+   } else if(formName.id==='exerciseForm') {
         formData = exerciseFormData();
+    } else if(formName.id==='restForm') {
+        formData = restFormData();
     }
     
   // send our request with the data
@@ -196,6 +217,10 @@ const init = () => {
   const exerciseForm = document.querySelector('#exerciseForm');
   const addExerciseBtn = document.querySelector('#addExerciseBtn');
   const getExerciseBtn = document.querySelector('#getExerciseBtn');
+  // rest form elements
+  const restForm = document.querySelector('#restForm');
+  const addRestBtn = document.querySelector('#addRestBtn');
+  const getRestBtn = document.querySelector('#getRestBtn');
   //make sure status code is hidden because there is a background color
   content.style.display = 'none';
     
@@ -207,9 +232,10 @@ const init = () => {
       if (e.keyCode === 13) {
           if(form.id === 'foodForm') {
               addFood(e);
-          }
-          else if(form.id === 'exerciseForm') {
+          } else if(form.id === 'exerciseForm') {
               addExercise(e);
+          } else if(form.id === 'restForm') {
+              addRest(e);
           }
       }
     });
@@ -217,10 +243,10 @@ const init = () => {
 };
     setUpInputs(foodForm);
     setUpInputs(exerciseForm);
+    setUpInputs(restForm);
 
   // create handler
-  const addFood = (e) => sendPost(e, foodForm);
-  addFoodBtn.addEventListener('click', addFood);
+  
   let displayList = true;
   const getList = (e) => {
     let urlString = e.srcElement.dataset.url;
@@ -244,11 +270,18 @@ const init = () => {
       displayList = true;
     }
   };
+    
+  const addFood = (e) => sendPost(e, foodForm);
+  addFoodBtn.addEventListener('click', addFood);
   getFoodBtn.addEventListener('click', getList);
 
   const addExercise = (e) => sendPost(e, exerciseForm);
   addExerciseBtn.addEventListener('click', addExercise);
   getExerciseBtn.addEventListener('click', getList);
+
+  const addRest = (e) => sendPost(e, restForm);
+  addRestBtn.addEventListener('click', addRest);
+  getRestBtn.addEventListener('click', getList);
 };
 
 window.onload = init;
@@ -303,15 +336,20 @@ window.onload = init;
     </div>
       
     <div id="div4" class="boxes">
-        <p class="goal">Sleep Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
+        <p class="goal">Rest Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
         <p class="currTotal">Current Total : XX</p>
-    <form id="restForm" action="/addRest" method="post">
+    <form id="restForm" action="/addRest" method="post" data-contentarea="#restContent">
       <p><input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5" placeholder="Sleep (Hours)"/></p>
       <p><input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="1" placeholder="Relaxation Time"/></p>
       <p><input id="moodField" type="text" name="mood" placeholder="Mood"/></p>
-      <p><input type="submit" value="Add Rest" /></p>
     </form> 
+        <p>
+      <input id="addRestBtn" type="button" value="Add Rest" data-contentarea="#restContent"/>
+        <input id="getRestBtn" type="button" value="Show List" data-url="/getRest" data-contentarea="#restContent" data-formname="#restForm" data-addbutton="#addRestBtn"/>
+    </p>
+    <section id="restContent"></section>
       </div>
+        
     </section>
     
     <section id="content"></section>

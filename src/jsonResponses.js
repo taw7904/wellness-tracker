@@ -2,7 +2,7 @@
 const foods = {};
 // const glasses = {};
 const exercises = {};
-// const rest = {};
+const rest = {};
 
 // function to respond with a json object
 // takes request, response, status code and object to send
@@ -118,6 +118,53 @@ const addExercise = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+// return rest object as JSON
+const getRest = (request, response) => {
+  const responseJSON = {
+    rest,
+  };
+  return respondJSON(request, response, 200, responseJSON);
+};
+
+const getRestMeta = (request, response) => respondJSONMeta(request, response, 200);
+
+// add rest info from the user!
+const addRest = (request, response, body) => {
+  // default json message -> assume the user sent an improper request
+  const responseJSON = {
+    message: 'Please enter sleep duration, relaxation time, and your mood.',
+  };
+
+  // check to make sure we have all fields
+  if (!body.sleep || !body.relaxation || !body.mood) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  // default status code - assuming item is not yet created
+  let responseCode = 201;
+
+  // if already exists, switch to a 204 updated status
+  if (rest[body.sleep]) {
+    responseCode = 204;
+  } else {
+    // otherwise create an empty object with that name
+    rest[body.sleep] = {};
+    rest[body.sleep].sleep = body.sleep;
+  }
+
+  rest[body.sleep].relaxation = body.relaxation;
+  rest[body.sleep].mood = body.mood;
+
+  // if response is created, then set our created message
+  // and sent response with a message
+  if (responseCode === 201) {
+    responseJSON.message = 'Created Successfully';
+    return respondJSON(request, response, responseCode, responseJSON);
+  }
+  return respondJSONMeta(request, response, responseCode);
+};
+
 const notFound = (request, response) => {
   const responseJSON = {
     message: 'Page not found.',
@@ -137,6 +184,9 @@ module.exports = {
   getExercise,
   getExerciseMeta,
   addExercise,
+  getRest,
+  getRestMeta,
+  addRest,
   notFound,
   notFoundMeta,
 };

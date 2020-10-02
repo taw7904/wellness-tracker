@@ -13,11 +13,13 @@ const urlStruct = {
     '/edit.png': htmlHandler.getEditIcon,
     '/getFoods': jsonHandler.getFoods,
     '/getExercise': jsonHandler.getExercise,
+    '/getRest': jsonHandler.getRest,
     notFound: jsonHandler.notFound,
   },
   HEAD: {
     '/getFoods': jsonHandler.getFoodsMeta,
     '/getExercise': jsonHandler.getExerciseMeta,
+    '/getRest': jsonHandler.getRestMeta,
     notFound: jsonHandler.notFoundMeta,
   },
 };
@@ -42,6 +44,8 @@ const handlePost = (request, response, parsedUrl) => {
       jsonHandler.addFood(request, response, bodyParams);
     } else if (parsedUrl.pathname === '/addExercise') {
       jsonHandler.addExercise(request, response, bodyParams);
+    } else if (parsedUrl.pathname === '/addRest') {
+      jsonHandler.addRest(request, response, bodyParams);
     }
   });
 };
