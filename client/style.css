@@ -108,3 +108,12 @@ span {
 ul {
     text-align: left;
 }
+
+ul li b {
+    text-transform: capitalize;
+}
+
+img {
+    margin-left: auto;
+    margin-right: auto;
+}

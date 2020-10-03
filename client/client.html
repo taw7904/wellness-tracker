@@ -253,17 +253,20 @@ const init = () => {
     let contentArea = document.querySelector(e.srcElement.dataset.contentarea);
     let formName = document.querySelector(e.srcElement.dataset.formname);
     let addButton = document.querySelector(e.srcElement.dataset.addbutton);
+    let icon = document.querySelector(e.srcElement.dataset.icon);
     if (displayList) {
       // clear what's in the content so all they see is the list
       contentArea.innerHTML = '';
       requestUpdate(e, urlString, 'get');
       formName.style.display = 'none';
+      icon.style.display = 'none';
       contentArea.style.display = 'block';
       e.target.value = 'Back to Main';
       addButton.disabled = true;
       displayList = false;
     } else {
       formName.style.display = 'block';
+      icon.style.display = 'block';
       contentArea.style.display = 'none';
       addButton.disabled = false;
       e.target.value = 'Show List';
@@ -304,8 +307,9 @@ window.onload = init;
     </form> 
      <p>
       <input id="addFoodBtn" type="button" value="Add Food" data-contentarea="#foodContent"/>
-      <input id="getFoodBtn" type="button" value="Show List" data-url="/getFoods" data-contentarea="#foodContent" data-formname="#foodForm" data-addbutton="#addFoodBtn"/>
+      <input id="getFoodBtn" type="button" value="Show List" data-url="/getFoods" data-contentarea="#foodContent" data-formname="#foodForm" data-addbutton="#addFoodBtn" data-icon="#foodIcon"/>
     </p>
+        <img src="/food.gif" width="110" height="110" alt="foodIcon" id="foodIcon"/>
     <section id="foodContent"></section>
     </div>
       
@@ -316,6 +320,7 @@ window.onload = init;
       <p><input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1" placeholder="Number of Glasses"/></p>
       <p><input type="submit" value="Add Glass" /></p>
     </form> 
+        <img src="/water.gif" width="90" height="90" alt="waterIcon" id="waterIcon"/>
     </div>
       
     </section>
@@ -330,8 +335,9 @@ window.onload = init;
     </form>
     <p>
       <input id="addExerciseBtn" type="button" value="Add Exercise" data-contentarea="#exerciseContent"/>
-        <input id="getExerciseBtn" type="button" value="Show List" data-url="/getExercise" data-contentarea="#exerciseContent" data-formname="#exerciseForm" data-addbutton="#addExerciseBtn"/>
+        <input id="getExerciseBtn" type="button" value="Show List" data-url="/getExercise" data-contentarea="#exerciseContent" data-formname="#exerciseForm" data-addbutton="#addExerciseBtn" data-icon="#exerciseIcon"/>
     </p>
+        <img src="/exercise.gif" width="90" height="90" alt="exerciseIcon" id="exerciseIcon"/>
     <section id="exerciseContent"></section>
     </div>
       
@@ -345,8 +351,9 @@ window.onload = init;
     </form> 
         <p>
       <input id="addRestBtn" type="button" value="Add Rest" data-contentarea="#restContent"/>
-        <input id="getRestBtn" type="button" value="Show List" data-url="/getRest" data-contentarea="#restContent" data-formname="#restForm" data-addbutton="#addRestBtn"/>
+        <input id="getRestBtn" type="button" value="Show List" data-url="/getRest" data-contentarea="#restContent" data-formname="#restForm" data-addbutton="#addRestBtn" data-icon="#restIcon"/>
     </p>
+        <img src="/sleep.gif" width="90" height="90" alt="sleepIcon" id="restIcon"/>
     <section id="restContent"></section>
       </div>
         
