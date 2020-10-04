@@ -50,6 +50,9 @@ const handlePost = (request, response, parsedUrl) => {
       jsonHandler.addExercise(request, response, bodyParams);
     } else if (parsedUrl.pathname === '/addRest') {
       jsonHandler.addRest(request, response, bodyParams);
+    } else if (parsedUrl.pathname === '/addWater') {
+      // don't think i need these body params
+      jsonHandler.addWater(request, response, bodyParams);
     }
   });
 };

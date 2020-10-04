@@ -50,10 +50,12 @@ const getWaterIcon = (request, response) => {
   response.end();
 };
 
-module.exports.getIndex = getIndex;
-module.exports.getStyle = getStyle;
-module.exports.getEditIcon = getEditIcon;
-module.exports.getSleepIcon = getSleepIcon;
-module.exports.getFoodIcon = getFoodIcon;
-module.exports.getExerciseIcon = getExerciseIcon;
-module.exports.getWaterIcon = getWaterIcon;
+module.exports = {
+  getIndex,
+  getStyle,
+  getEditIcon,
+  getSleepIcon,
+  getFoodIcon,
+  getExerciseIcon,
+  getWaterIcon,
+};

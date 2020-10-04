@@ -6,21 +6,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
-    const content = document.querySelector('#content');
-    const foodContent = document.querySelector('#foodContent');
-    const exerciseContent = document.querySelector('#exerciseContent');
-    const restContent = document.querySelector('#restContent');
     let foodNameField, caloriesField, quantityField;
     let exerciseTypeField, minutesField;
     let sleepField, relaxationField, moodField;
 
 const parseJSON = (xhr, content) => {
+    console.log("PARSING JSON");
   // parse response (obj will be empty in a 204 updated)
   const obj = JSON.parse(xhr.response);
+    console.log(obj);
   if (obj.message) {
     const p = document.createElement('p');
     p.textContent = `${obj.message}`;
     content.appendChild(p);
+    foodTotal.innerHTML = obj.foodTotal;
+    exerciseTotal.innerHTML = obj.exerciseTotal;
+    waterTotal.innerHTML = obj.waterTotal;
+    restTotal.innerHTML = obj.restTotal;
   }
 
   if (obj.foods) {
@@ -55,6 +57,10 @@ const parseJSON = (xhr, content) => {
     }
     restContent.appendChild(restList);
   }
+    
+    if(obj.totals) {
+        console.log(totals);
+    }
 };
 
 // function to handle our response
@@ -185,8 +191,28 @@ const sendPost = (e, formName) => {
   return false;
 };
 
+// send a simple post request with just button click
+const sendPostWater = (e, formName) => {
+  // grab the forms action (url to go to) and method
+  const formAction = formName.getAttribute('action');
+  const formMethod = formName.getAttribute('method');
+    
+  // create a new Ajax request (remember this is asynchronous)
+  const xhr = new XMLHttpRequest();
+  xhr.open(formMethod, formAction);
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.setRequestHeader('Accept', 'application/json');
+  xhr.onload = () => handleResponse(xhr, true);
+    
+  // send our request with the data
+  xhr.send();
+  if (e) {
+    e.preventDefault();
+  }
+  return false;
+};
+
 const requestUpdate = (e, formURL, formMethod) => {
-    //if its equal to "get" in first 3 strings, do animation
   const url = formURL;
   const method = formMethod;
   const xhr = new XMLHttpRequest();
@@ -206,23 +232,12 @@ const requestUpdate = (e, formURL, formMethod) => {
   return false;
 };
 
-
-
 const init = () => {
-  // food form elements
-  const foodForm = document.querySelector('#foodForm');
-  const addFoodBtn = document.querySelector('#addFoodBtn');
-  const getFoodBtn = document.querySelector('#getFoodBtn');
-  // exercise form elements
-  const exerciseForm = document.querySelector('#exerciseForm');
-  const addExerciseBtn = document.querySelector('#addExerciseBtn');
-  const getExerciseBtn = document.querySelector('#getExerciseBtn');
-  // rest form elements
-  const restForm = document.querySelector('#restForm');
-  const addRestBtn = document.querySelector('#addRestBtn');
-  const getRestBtn = document.querySelector('#getRestBtn');
+  //get edit buttons
+  const editBtns = document.querySelectorAll('.edit');
   //make sure status code is hidden because there is a background color
   content.style.display = 'none';
+  goalSection.style.display = 'none';
     
   //set up the input fields so that whenever enter is clicked, it triggers the right form action
   const setUpInputs = (form) => {
@@ -254,6 +269,8 @@ const init = () => {
     let formName = document.querySelector(e.srcElement.dataset.formname);
     let addButton = document.querySelector(e.srcElement.dataset.addbutton);
     let icon = document.querySelector(e.srcElement.dataset.icon);
+      
+      console.log(e + " " + urlString);
     if (displayList) {
       // clear what's in the content so all they see is the list
       contentArea.innerHTML = '';
@@ -285,6 +302,24 @@ const init = () => {
   const addRest = (e) => sendPost(e, restForm);
   addRestBtn.addEventListener('click', addRest);
   getRestBtn.addEventListener('click', getList);
+    
+  const addWater = (e) => sendPostWater(e, waterForm);
+  addWaterBtn.addEventListener('click', addWater);
+    
+  const editGoals = (e) => {
+      goalSection.style.display = 'none';
+      console.log("edit goals submit");
+  };
+    
+  editBtns.forEach(b => {
+  b.addEventListener('click', function(){
+      goalSection.style.display = 'block';
+  });
+  });
+  cancelGoalBtn.addEventListener('click', function(){
+      goalSection.style.display = 'none';
+  });
+  addGoalBtn.addEventListener('click', editGoals);
 };
 
 window.onload = init;
@@ -298,8 +333,8 @@ window.onload = init;
     
   <section id="top">
     <div id="div1" class="boxes">  
-    <p class="goal">Food Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
-    <p class="currTotal">Current Total : XX</p>
+    <p class="goal">Food Goal: <span id="foodGoal">2000</span> calories <img src="/edit.png" width="20" height="20" alt="editGoal" class="edit"/></p>
+    <p class="currTotal">Current Total : <span id="foodTotal">0</span> calories</p>
     <form id="foodForm" action="/addFood" method="post" data-contentarea="#foodContent">
       <p><input id="foodNameField" type="text" name="foodName" placeholder="Food Name"/></p>
       <p><input id="caloriesField" type="number" name="calories" min="0" max="10000" step="1" placeholder="Calories Per Serving"/></p>
@@ -314,11 +349,10 @@ window.onload = init;
     </div>
       
     <div id="div2" class="boxes">
-        <p class="goal">Water Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
-        <p class="currTotal">Current Total : XX</p>
+        <p class="goal">Water Goal: <span id="waterGoal">8</span> glasses  <img src="/edit.png" width="20" height="20" alt="editGoal" class="edit"/></p>
+        <p class="currTotal">Current Total : <span id="waterTotal">0</span> glasses</p>
     <form id="waterForm" action="/addWater" method="post">
-      <p><input id="glassesNumField" type="number" name="glassesNum" min="1" max="15" step="1" placeholder="Number of Glasses"/></p>
-      <p><input type="submit" value="Add Glass" /></p>
+      <p><input id="addWaterBtn" type="button" value="Add Glass" /></p>
     </form> 
         <img src="/water.gif" width="90" height="90" alt="waterIcon" id="waterIcon"/>
     </div>
@@ -327,8 +361,8 @@ window.onload = init;
     
     <section id="bottom">
     <div id="div3" class="boxes">
-        <p class="goal">Exercise Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
-        <p class="currTotal">Current Total : XX</p>
+        <p class="goal">Exercise Goal: <span id="exerciseGoal">60</span> minutes <img src="/edit.png" width="20" height="20" alt="editGoal" class="edit"/></p>
+        <p class="currTotal">Current Total : <span id="exerciseTotal">0</span> minutes</p>
     <form id="exerciseForm" action="/addExercise" method="post" data-contentarea="#exerciseContent">
       <p><input id="exerciseTypeField" type="text" name="exerciseType" placeholder="Exercise Type"/></p>
       <p><input id="minutesField" type="number" name="minutes" min="0" max="600" step="1" placeholder="Duration (Minutes)"/></p>
@@ -342,8 +376,8 @@ window.onload = init;
     </div>
       
     <div id="div4" class="boxes">
-        <p class="goal">Rest Goal: XX <img src="/edit.png" width="20" height="20" alt="editGoal"/></p>
-        <p class="currTotal">Current Total : XX</p>
+        <p class="goal">Rest Goal: <span id="restGoal">8</span> hours of sleep <img src="/edit.png" width="20" height="20" alt="editGoal" class="edit"/></p>
+        <p class="currTotal">Current Total : <span id="restTotal">0</span> hours of sleep</p>
     <form id="restForm" action="/addRest" method="post" data-contentarea="#restContent">
       <p><input id="sleepField" type="number" name="sleep" min="0" max="24" step=".5" placeholder="Sleep (Hours)"/></p>
       <p><input id="relaxationField" type="number" name="relaxation" min="0" max="600" step="1" placeholder="Relaxation Time"/></p>
@@ -356,9 +390,19 @@ window.onload = init;
         <img src="/sleep.gif" width="90" height="90" alt="sleepIcon" id="restIcon"/>
     <section id="restContent"></section>
       </div>
-        
     </section>
     
     <section id="content"></section>
+    
+    <section id="goalSection">
+        <h3>Edit Your Goals</h3>
+    <form id="goalForm" action="/addGoal" method="post">
+        <p class="goalName">Caloric Intake</p><p><input id="foodGoalField" type="number" name="foodGoal" min="0" max="3500" step="1" value="2000"/></p>
+      <p class="goalName">Glasses of Water</p><p><input id="waterField" type="number" name="waterGoal" min="0" max="20" step="1" value="8"/></p>
+      <p class="goalName">Minutes of Exercise</p><p><input id="exerciseField" type="number" name="exerciseGoal" min="0" max="500" step="1" value="60"/></p>
+      <p class="goalName">Hours of Sleep</p><p><input id="restField" type="number" name="restGoal" min="0" max="20" step="1" value="8"/></p>
+      <p><input id="cancelGoalBtn" type="button" value="Cancel" /><input id="addGoalBtn" type="button" value="Submit Changes" /></p>
+    </form> 
+    </section>
 </body>
 </html>

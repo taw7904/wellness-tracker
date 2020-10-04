@@ -1,8 +1,10 @@
-// const users = {};
 const foods = {};
 // const glasses = {};
 const exercises = {};
 const rest = {};
+const totals = {
+  foodTotal: 0, waterTotal: 0, exerciseTotal: 0, restTotal: 0,
+};
 
 // function to respond with a json object
 // takes request, response, status code and object to send
@@ -61,10 +63,20 @@ const addFood = (request, response, body) => {
   foods[body.foodName].calories = body.calories;
   foods[body.foodName].quantity = body.quantity;
 
+  const calcCalories = parseInt(foods[body.foodName].calories, 10);
+  const calcQuantity = parseInt(foods[body.foodName].quantity, 10);
+  // calculate the total calories and add it to the goal
+  const calculation = calcCalories * calcQuantity;
+  totals.foodTotal += calculation;
+
   // if response is created, then set our created message
   // and sent response with a message
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
+    responseJSON.foodTotal = totals.foodTotal;
+    responseJSON.exerciseTotal = totals.exerciseTotal;
+    responseJSON.waterTotal = totals.waterTotal;
+    responseJSON.restTotal = totals.restTotal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -109,10 +121,17 @@ const addExercise = (request, response, body) => {
 
   exercises[body.exerciseType].duration = body.duration;
 
+  // add amount of workout time to the total
+  totals.exerciseTotal += parseInt(exercises[body.exerciseType].duration, 10);
+
   // if response is created, then set our created message
   // and sent response with a message
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
+    responseJSON.foodTotal = totals.foodTotal;
+    responseJSON.exerciseTotal = totals.exerciseTotal;
+    responseJSON.waterTotal = totals.waterTotal;
+    responseJSON.restTotal = totals.restTotal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -156,10 +175,43 @@ const addRest = (request, response, body) => {
   rest[body.sleep].relaxation = body.relaxation;
   rest[body.sleep].mood = body.mood;
 
+  // add amount of sleep to the total
+  totals.restTotal += parseInt(rest[body.sleep].sleep, 10);
+
   // if response is created, then set our created message
   // and sent response with a message
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
+    responseJSON.foodTotal = totals.foodTotal;
+    responseJSON.exerciseTotal = totals.exerciseTotal;
+    responseJSON.waterTotal = totals.waterTotal;
+    responseJSON.restTotal = totals.restTotal;
+    return respondJSON(request, response, responseCode, responseJSON);
+  }
+  return respondJSONMeta(request, response, responseCode);
+};
+
+// add water info from the user!
+const addWater = (request, response) => {
+  const responseJSON = {
+    // there's no improper request possible here as it's just a button click
+    message: '',
+  };
+
+  // default status code - assuming item is not yet created
+  const responseCode = 201;
+
+  // add one water
+  totals.waterTotal += 1;
+
+  // if response is created, then set our created message
+  // and sent response with a message
+  if (responseCode === 201) {
+    responseJSON.message = 'Created Successfully';
+    responseJSON.foodTotal = totals.foodTotal;
+    responseJSON.exerciseTotal = totals.exerciseTotal;
+    responseJSON.waterTotal = totals.waterTotal;
+    responseJSON.restTotal = totals.restTotal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -187,6 +239,7 @@ module.exports = {
   getRest,
   getRestMeta,
   addRest,
+  addWater,
   notFound,
   notFoundMeta,
 };
