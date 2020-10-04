@@ -149,7 +149,7 @@ img {
 }
 
 /*make sure the height is big enough for each section on a small screen*/
-@media only screen and (max-width: 1550px) {
+@media only screen and (max-width: 1620px) {
   #top, #bottom {
     height: 60%;
 }
