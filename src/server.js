@@ -53,6 +53,9 @@ const handlePost = (request, response, parsedUrl) => {
     } else if (parsedUrl.pathname === '/addWater') {
       // don't think i need these body params
       jsonHandler.addWater(request, response, bodyParams);
+    } else if (parsedUrl.pathname === '/addGoal') {
+      // don't think i need these body params
+      jsonHandler.addGoal(request, response, bodyParams);
     }
   });
 };

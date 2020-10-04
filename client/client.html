@@ -6,25 +6,54 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    //get all of the fields we need to use in multiple functions
     let foodNameField, caloriesField, quantityField;
     let exerciseTypeField, minutesField;
     let sleepField, relaxationField, moodField;
+    let foodGoalField, waterGoalField, exerciseGoalField, restGoalField;
 
+//check if the user is at the goal or over, and change it to green if so
+const checkGoal = (total, goal, element) => {
+    let goalElement = document.querySelector(element);
+    console.log(total + " " + goal);
+    if(total >= goal) {
+        goalElement.style.color = '#03cc00';
+    }
+    else {
+        goalElement.style.color = 'black';
+    }
+}
+
+//parse the response
 const parseJSON = (xhr, content) => {
-    console.log("PARSING JSON");
-  // parse response (obj will be empty in a 204 updated)
   const obj = JSON.parse(xhr.response);
-    console.log(obj);
+    //json response message
   if (obj.message) {
     const p = document.createElement('p');
     p.textContent = `${obj.message}`;
     content.appendChild(p);
+      console.log(obj.message);
+    //if the goals were updated, update them in the UI
+      if(obj.message==='Goals Updated Successfully') {
+        foodGoal.innerHTML = obj.foodGoal;
+        exerciseGoal.innerHTML = obj.exerciseGoal;
+        waterGoal.innerHTML = obj.waterGoal;
+        restGoal.innerHTML = obj.restGoal;
+      } else {
+          //otherwise, update the goals
     foodTotal.innerHTML = obj.foodTotal;
     exerciseTotal.innerHTML = obj.exerciseTotal;
     waterTotal.innerHTML = obj.waterTotal;
     restTotal.innerHTML = obj.restTotal;
   }
+      //check to see if the total is above or below the goal
+      checkGoal(obj.foodTotal, obj.foodGoal, '#foodTotal');
+      checkGoal(obj.exerciseTotal, obj.exerciseGoal, '#exerciseTotal');
+      checkGoal(obj.waterTotal, obj.waterGoal, '#waterTotal');
+      checkGoal(obj.restTotal, obj.restGoal, '#restTotal');
+  }
 
+    //display the list of logged foods with the name, calories, and quantity
   if (obj.foods) {
     const foodList = document.createElement('ul');
     const foodObj = obj.foods;
@@ -36,6 +65,7 @@ const parseJSON = (xhr, content) => {
     foodContent.appendChild(foodList);
   }
 
+    //display the list of logged exercises and duration in minutes
   if (obj.exercises) {
     const exerciseList = document.createElement('ul');
     const exerciseObj = obj.exercises;
@@ -47,6 +77,7 @@ const parseJSON = (xhr, content) => {
     exerciseContent.appendChild(exerciseList);
   }
     
+    //display the list of logged rest with sleep, resting time, and mood
     if (obj.rest) {
     const restList = document.createElement('ul');
     const restObj = obj.rest;
@@ -57,10 +88,6 @@ const parseJSON = (xhr, content) => {
     }
     restContent.appendChild(restList);
   }
-    
-    if(obj.totals) {
-        console.log(totals);
-    }
 };
 
 // function to handle our response
@@ -70,7 +97,8 @@ const handleResponse = (xhr, parseResponse, buttonType) => {
         //we're only sending this parameter if it's a show list button
     }
     else {
-    //animation controls - only animate if it was an add button, not show list button
+    //animation controls - only animate the response if it was an add button, not show list button
+    //referenced from https://animate.style/#javascript
     content.classList.remove('animate__bounceOut', 'animate__delay-1s');
     content.style.display = 'block';
     content.classList.add('animate__animated', 'animate__bounceIn');
@@ -81,8 +109,7 @@ const handleResponse = (xhr, parseResponse, buttonType) => {
     }
     
   switch (xhr.status) {
-    case 200: // success
-      // just show the list
+    case 200: // success, we don't want to show success, just the list
       // content.innerHTML = `<b>Success</b>`;
       break;
     case 201: // created
@@ -107,62 +134,88 @@ const handleResponse = (xhr, parseResponse, buttonType) => {
   }
 };
 
+//grab all of the food input fields to see if enter is hit in any of them
 const checkFoodInput = (formName) => {
     foodNameField = formName.querySelector('#foodNameField');
     caloriesField = formName.querySelector('#caloriesField');
     quantityField = formName.querySelector('#quantityField');
 }
 
+//grab all of the exercise input fields to see if enter is hit in any of them
 const checkExerciseInput = (formName) => {
     exerciseTypeField = formName.querySelector('#exerciseTypeField');
     minutesField = formName.querySelector('#minutesField');
 }
 
+//grab all of the rest input fields to see if enter is hit in any of them
 const checkRestInput = (formName) => {
     sleepField = formName.querySelector('#sleepField');
     relaxationField = formName.querySelector('#relaxationField');
     moodField = formName.querySelector('#moodField');
 }
 
+//grab all of the goal fields to see if enter is hit in any of them
+const checkGoalInput = (formName) => {
+    foodGoalField = formName.querySelector('#foodGoalField');
+    waterGoalField = formName.querySelector('#waterGoalField');
+    exerciseGoalField = formName.querySelector('#exerciseGoalField');
+    restGoalField = formName.querySelector('#restGoalField');
+}
+
+//send the proper query string for food
 const foodFormData = () => {
     return `foodName=${foodNameField.value}&calories=${caloriesField.value}&quantity=${quantityField.value}`;
 }
 
+//send the proper query string for exercise
 const exerciseFormData = () => {
     return `exerciseType=${exerciseTypeField.value}&duration=${minutesField.value}`;
 }
 
+//send the proper query string for rest
 const restFormData = () => {
     return `sleep=${sleepField.value}&relaxation=${relaxationField.value}&mood=${moodField.value}`;
+}
+
+//send the proper query string for goals
+const goalsFormData = () => {
+    return `foodGoal=${foodGoalField.value}&waterGoal=${waterGoalField.value}&exerciseGoal=${exerciseGoalField.value}&restGoal=${restGoalField.value}`;
 }
 
 // function to send our post request
 const sendPost = (e, formName) => {
     let contentArea, formData;
-    //if the enter key is triggering it, it wont have the button data set
-    if(!e.srcElement.dataset.contentarea) {
-        contentArea = document.querySelector(e.path[2].dataset.contentarea);
+    if(formName.id==='goalForm') {
+        //goal form will not have a content area to worry about
     }
-    //otherwise, grab it from the button dataset
     else {
+        //if the enter key is triggering it, it wont have the button data set, so get the content area here
+        if(!e.srcElement.dataset.contentarea) {
+        contentArea = document.querySelector(e.path[2].dataset.contentarea);
+        }
+        //otherwise, grab it from the button dataset
+        else {
         contentArea = document.querySelector(e.srcElement.dataset.contentarea);
+        }
+    contentArea.innerHTML = '';
     }
     
-  contentArea.innerHTML = '';
   // grab the forms action (url to go to) and method
   const formAction = formName.getAttribute('action');
   const formMethod = formName.getAttribute('method');
 
-  // grab the food form input
+  // grab the right form input
     if(formName.id==='foodForm') {
     checkFoodInput(formName);
     } else if(formName.id==='exerciseForm') {
         checkExerciseInput(formName);
     } else if(formName.id==='restForm') {
         checkRestInput(formName);
+    } else if(formName.id==='goalForm') {
+        checkGoalInput(formName);
     }
 
-  // create a new Ajax request (remember this is asynchronous)
+  // create a new Ajax request 
   const xhr = new XMLHttpRequest();
   xhr.open(formMethod, formAction);
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -176,6 +229,8 @@ const sendPost = (e, formName) => {
         formData = exerciseFormData();
     } else if(formName.id==='restForm') {
         formData = restFormData();
+    } else if(formName.id==='goalForm'){
+        formData = goalsFormData();
     }
     
   // send our request with the data
@@ -183,11 +238,17 @@ const sendPost = (e, formName) => {
   if (e) {
     e.preventDefault();
   }
-  // clear the fields in form when done
-  formName.reset();
-  // set focus back to first input
-  formName.elements[0].focus();
-  contentArea.style.display = 'block';
+    if(formName.id==='goalForm') {
+        //if goal form, don't need to worry about clearing the form
+        //we want the info to stay
+    }
+    else{
+    // clear the fields in form when done
+    formName.reset();
+    // set focus back to first input
+    formName.elements[0].focus();
+    contentArea.style.display = 'block';
+    }
   return false;
 };
 
@@ -212,6 +273,7 @@ const sendPostWater = (e, formName) => {
   return false;
 };
 
+//request update to get data through proper request
 const requestUpdate = (e, formURL, formMethod) => {
   const url = formURL;
   const method = formMethod;
@@ -232,9 +294,13 @@ const requestUpdate = (e, formURL, formMethod) => {
   return false;
 };
 
+//setting up everything
 const init = () => {
   //get edit buttons
   const editBtns = document.querySelectorAll('.edit');
+  //and top and bottom main sections of the page
+  const topSection = document.querySelector('#top');
+  const bottomSection = document.querySelector('#bottom');
   //make sure status code is hidden because there is a background color
   content.style.display = 'none';
   goalSection.style.display = 'none';
@@ -251,26 +317,29 @@ const init = () => {
               addExercise(e);
           } else if(form.id === 'restForm') {
               addRest(e);
+          } else if(form.id==='goalForm') {
+              addGoal(e);
           }
       }
     });
   }
 };
+    //check all the inputs to see if enter is clicked when in them
     setUpInputs(foodForm);
     setUpInputs(exerciseForm);
     setUpInputs(restForm);
+    setUpInputs(goalForm);
 
   // create handler
   
   let displayList = true;
+    //set up the proper elements when the list is displayed
   const getList = (e) => {
     let urlString = e.srcElement.dataset.url;
     let contentArea = document.querySelector(e.srcElement.dataset.contentarea);
     let formName = document.querySelector(e.srcElement.dataset.formname);
     let addButton = document.querySelector(e.srcElement.dataset.addbutton);
     let icon = document.querySelector(e.srcElement.dataset.icon);
-      
-      console.log(e + " " + urlString);
     if (displayList) {
       // clear what's in the content so all they see is the list
       contentArea.innerHTML = '';
@@ -291,35 +360,49 @@ const init = () => {
     }
   };
     
+  //connect add and get food buttons
   const addFood = (e) => sendPost(e, foodForm);
   addFoodBtn.addEventListener('click', addFood);
   getFoodBtn.addEventListener('click', getList);
 
+  //connect add and get exercise buttons
   const addExercise = (e) => sendPost(e, exerciseForm);
   addExerciseBtn.addEventListener('click', addExercise);
   getExerciseBtn.addEventListener('click', getList);
 
+  //connect add and get rest buttons
   const addRest = (e) => sendPost(e, restForm);
   addRestBtn.addEventListener('click', addRest);
   getRestBtn.addEventListener('click', getList);
     
+  //connect add water button
   const addWater = (e) => sendPostWater(e, waterForm);
   addWaterBtn.addEventListener('click', addWater);
     
-  const editGoals = (e) => {
+  //set up function to add goal and styling
+  const addGoal = (e) => {
+      sendPost(e, goalForm);
       goalSection.style.display = 'none';
-      console.log("edit goals submit");
+      topSection.style.opacity = 1;
+      bottomSection.style.opacity = 1;
   };
     
+  //hook up edit button events
   editBtns.forEach(b => {
   b.addEventListener('click', function(){
       goalSection.style.display = 'block';
+      topSection.style.opacity = 0.4;
+      bottomSection.style.opacity = 0.4;
   });
   });
+  //hook up cancel button events
   cancelGoalBtn.addEventListener('click', function(){
       goalSection.style.display = 'none';
+      topSection.style.opacity = 1;
+      bottomSection.style.opacity = 1;
   });
-  addGoalBtn.addEventListener('click', editGoals);
+  //hook up add goal button
+  addGoalBtn.addEventListener('click', addGoal);
 };
 
 window.onload = init;
@@ -398,9 +481,9 @@ window.onload = init;
         <h3>Edit Your Goals</h3>
     <form id="goalForm" action="/addGoal" method="post">
         <p class="goalName">Caloric Intake</p><p><input id="foodGoalField" type="number" name="foodGoal" min="0" max="3500" step="1" value="2000"/></p>
-      <p class="goalName">Glasses of Water</p><p><input id="waterField" type="number" name="waterGoal" min="0" max="20" step="1" value="8"/></p>
-      <p class="goalName">Minutes of Exercise</p><p><input id="exerciseField" type="number" name="exerciseGoal" min="0" max="500" step="1" value="60"/></p>
-      <p class="goalName">Hours of Sleep</p><p><input id="restField" type="number" name="restGoal" min="0" max="20" step="1" value="8"/></p>
+      <p class="goalName">Glasses of Water</p><p><input id="waterGoalField" type="number" name="waterGoal" min="0" max="20" step="1" value="8"/></p>
+      <p class="goalName">Minutes of Exercise</p><p><input id="exerciseGoalField" type="number" name="exerciseGoal" min="0" max="500" step="1" value="60"/></p>
+      <p class="goalName">Hours of Sleep</p><p><input id="restGoalField" type="number" name="restGoal" min="0" max="20" step="1" value="8"/></p>
       <p><input id="cancelGoalBtn" type="button" value="Cancel" /><input id="addGoalBtn" type="button" value="Submit Changes" /></p>
     </form> 
     </section>

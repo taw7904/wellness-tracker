@@ -1,15 +1,16 @@
 const foods = {};
-// const glasses = {};
 const exercises = {};
 const rest = {};
 const totals = {
   foodTotal: 0, waterTotal: 0, exerciseTotal: 0, restTotal: 0,
 };
+const goals = {
+  foodGoal: 2000, waterGoal: 8, exerciseGoal: 60, restGoal: 8,
+};
 
 // function to respond with a json object
 // takes request, response, status code and object to send
 const respondJSON = (request, response, status, object) => {
-  // can also make header object with multiple headers if needed
   response.writeHead(status, { 'Content-Type': 'application/json' });
   response.write(JSON.stringify(object));
   response.end();
@@ -41,8 +42,7 @@ const addFood = (request, response, body) => {
     message: 'Please enter the name, calories, and quantity.',
   };
 
-  // check to make sure we have both fields
-  // if either are missing, send back an error message as a 400 badRequest
+  // if any fields are missing, send a bad request
   if (!body.foodName || !body.calories || !body.quantity) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
@@ -77,6 +77,7 @@ const addFood = (request, response, body) => {
     responseJSON.exerciseTotal = totals.exerciseTotal;
     responseJSON.waterTotal = totals.waterTotal;
     responseJSON.restTotal = totals.restTotal;
+    responseJSON.foodGoal = goals.foodGoal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -132,6 +133,7 @@ const addExercise = (request, response, body) => {
     responseJSON.exerciseTotal = totals.exerciseTotal;
     responseJSON.waterTotal = totals.waterTotal;
     responseJSON.restTotal = totals.restTotal;
+    responseJSON.exerciseGoal = goals.exerciseGoal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -186,6 +188,41 @@ const addRest = (request, response, body) => {
     responseJSON.exerciseTotal = totals.exerciseTotal;
     responseJSON.waterTotal = totals.waterTotal;
     responseJSON.restTotal = totals.restTotal;
+    responseJSON.restGoal = goals.restGoal;
+    return respondJSON(request, response, responseCode, responseJSON);
+  }
+  return respondJSONMeta(request, response, responseCode);
+};
+
+// add rest info from the user!
+const addGoal = (request, response, body) => {
+  // default json message -> assume the user sent an improper request
+  const responseJSON = {
+    message: 'Please enter a goal for each category.',
+  };
+
+  // check to make sure we have all fields
+  if (!body.foodGoal || !body.waterGoal || !body.exerciseGoal || !body.restGoal) {
+    responseJSON.id = 'missingParams';
+    return respondJSON(request, response, 400, responseJSON);
+  }
+
+  // default status code - only one response code because there's already default values, so it will always have something
+  const responseCode = 201;
+    
+    goals.foodGoal = body.foodGoal;
+    goals.waterGoal = body.waterGoal;
+    goals.exerciseGoal = body.exerciseGoal;
+    goals.restGoal = body.restGoal;
+
+  // if response is created, then set our created message
+  // and sent response with a message
+  if (responseCode === 201) {
+    responseJSON.message = 'Goals Updated Successfully';
+    responseJSON.foodGoal = goals.foodGoal;
+    responseJSON.exerciseGoal = goals.exerciseGoal;
+    responseJSON.waterGoal = goals.waterGoal;
+    responseJSON.restGoal = goals.restGoal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -194,7 +231,7 @@ const addRest = (request, response, body) => {
 // add water info from the user!
 const addWater = (request, response) => {
   const responseJSON = {
-    // there's no improper request possible here as it's just a button click
+    // no improper request possible here as it's just a button click
     message: '',
   };
 
@@ -212,6 +249,7 @@ const addWater = (request, response) => {
     responseJSON.exerciseTotal = totals.exerciseTotal;
     responseJSON.waterTotal = totals.waterTotal;
     responseJSON.restTotal = totals.restTotal;
+    responseJSON.waterGoal = goals.waterGoal;
     return respondJSON(request, response, responseCode, responseJSON);
   }
   return respondJSONMeta(request, response, responseCode);
@@ -240,6 +278,7 @@ module.exports = {
   getRestMeta,
   addRest,
   addWater,
+  addGoal,
   notFound,
   notFoundMeta,
 };
