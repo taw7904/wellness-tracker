@@ -6,6 +6,7 @@ const jsonHandler = require('./jsonResponses.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
+// get the url struct for get or head request
 const urlStruct = {
   GET: {
     '/': htmlHandler.getIndex,

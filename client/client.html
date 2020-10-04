@@ -15,7 +15,7 @@
 //check if the user is at the goal or over, and change it to green if so
 const checkGoal = (total, goal, element) => {
     let goalElement = document.querySelector(element);
-    console.log(total + " " + goal);
+    //console.log(total + " " + goal);
     if(total >= goal) {
         goalElement.style.color = '#03cc00';
     }
@@ -32,7 +32,7 @@ const parseJSON = (xhr, content) => {
     const p = document.createElement('p');
     p.textContent = `${obj.message}`;
     content.appendChild(p);
-      console.log(obj.message);
+      //console.log(obj.message);
     //if the goals were updated, update them in the UI
       if(obj.message==='Goals Updated Successfully') {
         foodGoal.innerHTML = obj.foodGoal;

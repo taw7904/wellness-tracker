@@ -17,7 +17,6 @@ const respondJSON = (request, response, status, object) => {
 };
 
 // function to respond without json body
-// same as head request without .write
 // takes request, response and status code
 const respondJSONMeta = (request, response, status) => {
   response.writeHead(status, { 'Content-Type': 'application/json' });
@@ -32,12 +31,12 @@ const getFoods = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
+// return food metadata
 const getFoodsMeta = (request, response) => respondJSONMeta(request, response, 200);
 
-// function to add a user from a POST body
-// body contains information from the user
+// function to add food from a POST body
 const addFood = (request, response, body) => {
-  // default json message -> assume the user sent an improper request
+  // default json message, assume the user sent an improper request
   const responseJSON = {
     message: 'Please enter the name, calories, and quantity.',
   };
@@ -91,18 +90,17 @@ const getExercise = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
+// return exercise meta data
 const getExerciseMeta = (request, response) => respondJSONMeta(request, response, 200);
 
-// function to add a user from a POST body
-// body contains information from the user
+// function to add exercise from a POST body
 const addExercise = (request, response, body) => {
   // default json message -> assume the user sent an improper request
   const responseJSON = {
     message: 'Please enter the exercise type and duration.',
   };
 
-  // check to make sure we have both fields
-  // if either are missing, send back an error message as a 400 badRequest
+  // if any fields are missing, send a bad request
   if (!body.exerciseType || !body.duration) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
@@ -147,6 +145,7 @@ const getRest = (request, response) => {
   return respondJSON(request, response, 200, responseJSON);
 };
 
+// return rest metadata
 const getRestMeta = (request, response) => respondJSONMeta(request, response, 200);
 
 // add rest info from the user!
@@ -156,7 +155,7 @@ const addRest = (request, response, body) => {
     message: 'Please enter sleep duration, relaxation time, and your mood.',
   };
 
-  // check to make sure we have all fields
+  // if any fields are missing, send a bad request
   if (!body.sleep || !body.relaxation || !body.mood) {
     responseJSON.id = 'missingParams';
     return respondJSON(request, response, 400, responseJSON);
@@ -194,10 +193,11 @@ const addRest = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
-// add rest info from the user!
+// add goal info when goals are edited
 const addGoal = (request, response, body) => {
   // default json message -> assume the user sent an improper request
   const responseJSON = {
+    // shouldn't happen as all the goal fields have default values
     message: 'Please enter a goal for each category.',
   };
 
@@ -256,6 +256,7 @@ const addWater = (request, response) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
+// not found response object, message and id
 const notFound = (request, response) => {
   const responseJSON = {
     message: 'Page not found.',
