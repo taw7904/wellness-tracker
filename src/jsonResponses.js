@@ -207,13 +207,14 @@ const addGoal = (request, response, body) => {
     return respondJSON(request, response, 400, responseJSON);
   }
 
-  // default status code - only one response code because there's already default values, so it will always have something
+  // default status code - only one response code
+  // there's already default values, so it will always have something
   const responseCode = 201;
-    
-    goals.foodGoal = body.foodGoal;
-    goals.waterGoal = body.waterGoal;
-    goals.exerciseGoal = body.exerciseGoal;
-    goals.restGoal = body.restGoal;
+
+  goals.foodGoal = body.foodGoal;
+  goals.waterGoal = body.waterGoal;
+  goals.exerciseGoal = body.exerciseGoal;
+  goals.restGoal = body.restGoal;
 
   // if response is created, then set our created message
   // and sent response with a message
